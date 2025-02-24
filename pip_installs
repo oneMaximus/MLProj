@@ -1,4 +1,9 @@
 Stuff you need to pip install if you havent already
-pip install yfinance
+pip install yfinance (Please ensure it is the latest version: currently 0.2.54)
 pip install seaborn
-pip insta
+
+https://github.com/cgohlke/talib-build/releases
+Installing Ta-Lib might have an issue
+
+Run this:
+pip install pandas numpy yfinance seaborn matplotlib TA-Lib
