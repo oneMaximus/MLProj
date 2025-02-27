@@ -6,3 +6,8 @@ Adding in EMA
 Best Parameters (Time + SMA + EMA): {'C': 100, 'epsilon': 0.01, 'gamma': 0.001}
 Best Model MSE (Actual Prices, Time + SMA + EMA): 14646.5014
 Best Model R^2 (Actual Prices, Time + SMA + EMA): 0.8240
+
+Adding in WMA
+Best Parameters (Time + SMA + EMA + WMA): {'C': 100, 'epsilon': 0.01, 'gamma': 0.001}
+Best Model MSE (Actual Prices, Time + SMA + EMA + WMA): 12782.9641
+Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA): 0.8464

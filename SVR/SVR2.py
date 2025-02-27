@@ -1,5 +1,5 @@
 # =============================================================================
-# PART 1: Data Fetching and Technical Indicator Calculation (Time, SMA, EMA)
+# PART 1: Data Fetching and Technical Indicator Calculation (Time, SMA, EMA, WMA)
 # =============================================================================
 import yfinance as yf
 import pandas as pd
@@ -23,9 +23,16 @@ def fetch_data(ticker="^GSPC", start="2018-01-01", end="2023-01-01"):
         data.columns = data.columns.get_level_values(0)
     return data
 
+def wma(prices, window):
+    """
+    Calculate Weighted Moving Average, giving higher weights to recent prices.
+    """
+    weights = np.arange(1, window + 1)  # Weights: 1, 2, ..., 9 for a 9-day WMA
+    return prices.rolling(window).apply(lambda x: np.dot(x, weights) / weights.sum(), raw=True)
+
 def compute_indicators(data, window=9):
     """
-    Set up time as X, add SMA and EMA as technical indicators, with actual closing prices as Y.
+    Set up time as X, add SMA, EMA, and WMA as technical indicators, with actual closing prices as Y.
     """
     # Create time feature
     data['Time'] = (data.index - data.index[0]).days  # Days since first date
@@ -33,10 +40,11 @@ def compute_indicators(data, window=9):
     # Target: Next day's closing price
     data['Y'] = data['Close'].shift(-1)  # Predict next day's closing price
 
-    # Technical indicators: SMA and EMA
+    # Technical indicators: SMA, EMA, and WMA
     close = data['Close']
     data['SMA'] = sma_indicator(close, window=window)
     data['EMA'] = ema_indicator(close, window=window)
+    data['WMA'] = wma(close, window=window)
 
     # Drop NaN values
     data.dropna(inplace=True)
@@ -47,11 +55,11 @@ data = fetch_data()
 data = compute_indicators(data, window=9)
 
 # =============================================================================
-# PART 2: SVR Model Training, Tuning, and Time-Series Visualization (Time, SMA, EMA)
+# PART 2: SVR Model Training, Tuning, and Time-Series Visualization (Test Period Only)
 # =============================================================================
 
-# Define features (Time, SMA, EMA)
-features = ['Time', 'SMA', 'EMA']
+# Define features (Time, SMA, EMA, WMA)
+features = ['Time', 'SMA', 'EMA', 'WMA']
 
 # Prepare X (features) and y (actual closing prices)
 X = data[features]
@@ -75,15 +83,18 @@ y_test_scaled = scaler_Y.transform(y_test.values.reshape(-1, 1)).ravel()
 svr = SVR(kernel='rbf', C=1.0, epsilon=0.1, gamma='scale')
 svr.fit(X_train_scaled, y_train_scaled)
 
-# Predict and evaluate initial model
-y_pred_scaled = svr.predict(X_test_scaled)
-y_pred = scaler_Y.inverse_transform(y_pred_scaled.reshape(-1, 1)).ravel()
-y_test_actual = y_test.values
+# Predict for test set
+y_pred_test_scaled = svr.predict(X_test_scaled)
 
-mse = mean_squared_error(y_test_actual, y_pred)
-r2 = r2_score(y_test_actual, y_pred)
-print(f"Initial Model MSE (Actual Prices, Time + SMA + EMA): {mse:.4f}")
-print(f"Initial Model R^2 (Actual Prices, Time + SMA + EMA): {r2:.4f}")
+# Inverse transform predictions to get actual prices for test set
+y_pred_test = scaler_Y.inverse_transform(y_pred_test_scaled.reshape(-1, 1)).ravel()
+y_test_actual = y_test.values  # Actual test prices
+
+# Evaluate initial model (on test set)
+mse = mean_squared_error(y_test_actual, y_pred_test)
+r2 = r2_score(y_test_actual, y_pred_test)
+print(f"Initial Model MSE (Actual Prices, Time + SMA + EMA + WMA): {mse:.4f}")
+print(f"Initial Model R^2 (Actual Prices, Time + SMA + EMA + WMA): {r2:.4f}")
 
 # Expanded hyperparameter tuning
 param_grid = {
@@ -93,24 +104,26 @@ param_grid = {
 }
 grid = GridSearchCV(SVR(kernel='rbf'), param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1, verbose=2)
 grid.fit(X_train_scaled, y_train_scaled)
-print(f"Best Parameters (Time + SMA + EMA): {grid.best_params_}")
+print(f"Best Parameters (Time + SMA + EMA + WMA): {grid.best_params_}")
 
 # Train final model with best parameters
 best_svr = grid.best_estimator_
-y_pred_best_scaled = best_svr.predict(X_test_scaled)
-y_pred_best = scaler_Y.inverse_transform(y_pred_best_scaled.reshape(-1, 1)).ravel()
-best_mse = mean_squared_error(y_test_actual, y_pred_best)
-best_r2 = r2_score(y_test_actual, y_pred_best)
-print(f"Best Model MSE (Actual Prices, Time + SMA + EMA): {best_mse:.4f}")
-print(f"Best Model R^2 (Actual Prices, Time + SMA + EMA): {best_r2:.4f}")
+y_pred_test_best_scaled = best_svr.predict(X_test_scaled)
+y_pred_test_best = scaler_Y.inverse_transform(y_pred_test_best_scaled.reshape(-1, 1)).ravel()
 
-# Create time-series plot
+# Evaluate best model (on test set)
+best_mse = mean_squared_error(y_test_actual, y_pred_test_best)
+best_r2 = r2_score(y_test_actual, y_pred_test_best)
+print(f"Best Model MSE (Actual Prices, Time + SMA + EMA + WMA): {best_mse:.4f}")
+print(f"Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA): {best_r2:.4f}")
+
+# Create time-series plot for test period only
 plt.figure(figsize=(12, 6))
-plt.plot(data.index[train_size:], y_test_actual, label='Actual S&P 500 Closing Price', color='blue')
-plt.plot(data.index[train_size:], y_pred_best, label='Predicted S&P 500 Closing Price (Time + SMA + EMA)', color='red', linestyle='--')
+plt.plot(data.index[train_size:], y_test_actual, label='Actual S&P 500 Closing Price (Test)', color='blue')
+plt.plot(data.index[train_size:], y_pred_test_best, label='Predicted S&P 500 Closing Price (Test, Time + SMA + EMA + WMA)', color='red', linestyle='--')
 plt.xlabel('Date')
 plt.ylabel('S&P 500 Closing Price')
-plt.title('SVR: Actual vs Predicted S&P 500 Closing Prices (Time + SMA + EMA, Tuned)')
+plt.title('SVR: Actual vs Predicted S&P 500 Closing Prices (Test Period, Time + SMA + EMA + WMA, Tuned)')
 plt.legend()
 plt.xticks(rotation=45)
 plt.tight_layout()
