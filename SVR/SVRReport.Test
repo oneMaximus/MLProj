@@ -88,3 +88,9 @@ Add Volatility Index
 Best Model MSE (Actual Prices, Time + Approx_AD + VIX): 2715061.5251
 Best Model R^2 (Actual Prices, Time + Approx_AD + VIX): -30.4786
 -----------------------------------------------------------------------------------------------------------------
+
+Combined All Indicators (all 18 Indicators)
+-----------------------------------------------------------------------------------------------------------------
+Best Model MSE (Actual Prices, All Indicators): 6053.7696
+Best Model R^2 (Actual Prices, All Indicators): 0.9215
+-----------------------------------------------------------------------------------------------------------------
