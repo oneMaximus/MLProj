@@ -1,4 +1,4 @@
-Price and Trend Indicators
+Price and Trend Indicators (6 Indicators)
 -----------------------------------------------------------------------------------------------------------------
 Best Parameters (SMA Only): {'C': 100, 'epsilon': 0.001, 'gamma': 0.001}
 Best Model MSE (Actual Prices, SMA Only): 21834.6335
@@ -28,7 +28,7 @@ Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + I
 -----------------------------------------------------------------------------------------------------------------
 
 
-Momentum Indicators (Why this so bad lmao)
+Momentum Indicators (5 Indicators) (Why this so bad lmao)
 -----------------------------------------------------------------------------------------------------------------
 RSI Indicator only
 Best Model MSE (Actual Prices, Time + RSI): 2237221.1788
@@ -49,4 +49,42 @@ Best Model R^2 (Actual Prices, Time + RSI + Stochastic_Oscillator + ROC + MOM): 
 Add Williams %R
 Best Model MSE (Actual Prices, Time + RSI + Stochastic_Oscillator + ROC + MOM + Williams_%R): 1723206.0099
 Best Model R^2 (Actual Prices, Time + RSI + Stochastic_Oscillator + ROC + MOM + Williams_%R): -19.7096
+-----------------------------------------------------------------------------------------------------------------
+
+
+Volatility Indicators (2 Indicators)
+-----------------------------------------------------------------------------------------------------------------
+Bollinger Bands
+Best Model MSE (Actual Prices, Time + Bollinger_Mavg): 21834.6335
+Best Model R^2 (Actual Prices, Time + Bollinger_Mavg): 0.7376
+
+Add Average True Range
+Best Model MSE (Actual Prices, Time + Bollinger_Mavg + ATR): 266186.8050
+Best Model R^2 (Actual Prices, Time + Bollinger_Mavg + ATR): -2.1991
+-----------------------------------------------------------------------------------------------------------------
+
+Volume Indicator (3 Indicators)
+-----------------------------------------------------------------------------------------------------------------
+On Balance Volume
+Best Model MSE (Actual Prices, Time + OBV): 52463.8978
+Best Model R^2 (Actual Prices, Time + OBV): 0.3917
+
+Add Money Flow Index
+Best Model MSE (Actual Prices, Time + OBV + MFI): 149649.1067
+Best Model R^2 (Actual Prices, Time + OBV + MFI): -0.8344
+
+Add Volume Weighted Average Price VWAP
+Best Model MSE (Actual Prices, Time + OBV + MFI + VWAP): 31852.8219
+Best Model R^2 (Actual Prices, Time + OBV + MFI + VWAP): 0.6095
+-----------------------------------------------------------------------------------------------------------------
+
+Market Breadth Indicator (2 Indicators)
+-----------------------------------------------------------------------------------------------------------------
+Advance-Decline-Lines
+Best Model MSE (Actual Prices, Time + Approx_AD): 854260.4743
+Best Model R^2 (Actual Prices, Time + Approx_AD): -8.9044
+
+Add Volatility Index
+Best Model MSE (Actual Prices, Time + Approx_AD + VIX): 2715061.5251
+Best Model R^2 (Actual Prices, Time + Approx_AD + VIX): -30.4786
 -----------------------------------------------------------------------------------------------------------------
