@@ -1,3 +1,5 @@
+Price and Trend Indicators
+-----------------------------------------------------------------------------------------------------------------
 Best Parameters (SMA Only): {'C': 100, 'epsilon': 0.001, 'gamma': 0.001}
 Best Model MSE (Actual Prices, SMA Only): 21834.6335
 Best Model R^2 (Actual Prices, SMA Only): 0.7376
@@ -11,3 +13,16 @@ Adding in WMA
 Best Parameters (Time + SMA + EMA + WMA): {'C': 100, 'epsilon': 0.01, 'gamma': 0.001}
 Best Model MSE (Actual Prices, Time + SMA + EMA + WMA): 12782.9641
 Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA): 0.8464
+
+Adding MACD
+Best Model MSE (Actual Prices, Time + SMA + EMA + WMA + MACD): 11303.1706
+Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA + MACD): 0.8533
+
+Add PSAR
+Best Model MSE (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR): 11176.5375
+Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR): 0.8550
+
+Add Ichimoku_Tenkan_sen
+Best Model MSE (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen): 11601.1399
+Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen): 0.8495
+-----------------------------------------------------------------------------------------------------------------

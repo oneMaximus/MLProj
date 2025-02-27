@@ -1,10 +1,10 @@
 # =============================================================================
-# PART 1: Data Fetching and Technical Indicator Calculation (Time, SMA, EMA, WMA)
+# PART 1: Data Fetching and Technical Indicator Calculation (Time, SMA, EMA, WMA, MACD, Parabolic_SAR, Ichimoku Cloud)
 # =============================================================================
 import yfinance as yf
 import pandas as pd
 import numpy as np
-from ta.trend import sma_indicator, ema_indicator
+from ta.trend import sma_indicator, ema_indicator, macd_diff, psar_down_indicator, ichimoku_a
 import matplotlib.pyplot as plt
 import seaborn as sns
 import itertools, random
@@ -32,7 +32,7 @@ def wma(prices, window):
 
 def compute_indicators(data, window=9):
     """
-    Set up time as X, add SMA, EMA, and WMA as technical indicators, with actual closing prices as Y.
+    Set up time as X, add SMA, EMA, WMA, MACD, Parabolic_SAR, and Ichimoku Cloud (Tenkan-sen) as technical indicators, with actual closing prices as Y.
     """
     # Create time feature
     data['Time'] = (data.index - data.index[0]).days  # Days since first date
@@ -40,11 +40,17 @@ def compute_indicators(data, window=9):
     # Target: Next day's closing price
     data['Y'] = data['Close'].shift(-1)  # Predict next day's closing price
 
-    # Technical indicators: SMA, EMA, and WMA
+    # Technical indicators: SMA, EMA, WMA, MACD, Parabolic_SAR, and Ichimoku Cloud (Tenkan-sen)
     close = data['Close']
+    high = data['High']
+    low = data['Low']
     data['SMA'] = sma_indicator(close, window=window)
     data['EMA'] = ema_indicator(close, window=window)
     data['WMA'] = wma(close, window=window)
+    data['MACD'] = macd_diff(close)  # Default uses 12, 26, 9 (fast, slow, signal); we use diff for simplicity
+    data['Parabolic_SAR'] = psar_down_indicator(high, low, close)  # Uses default AF (0.02, max 0.2)
+    # Ichimoku Cloud: Tenkan-sen (9-period average, as per document)
+    data['Ichimoku_Tenkan_sen'] = (high.rolling(window=9).max() + low.rolling(window=9).min()) / 2
 
     # Drop NaN values
     data.dropna(inplace=True)
@@ -58,8 +64,8 @@ data = compute_indicators(data, window=9)
 # PART 2: SVR Model Training, Tuning, and Time-Series Visualization (Test Period Only)
 # =============================================================================
 
-# Define features (Time, SMA, EMA, WMA)
-features = ['Time', 'SMA', 'EMA', 'WMA']
+# Define features (Time, SMA, EMA, WMA, MACD, Parabolic_SAR, Ichimoku_Tenkan_sen)
+features = ['Time', 'SMA', 'EMA', 'WMA', 'MACD', 'Parabolic_SAR', 'Ichimoku_Tenkan_sen']
 
 # Prepare X (features) and y (actual closing prices)
 X = data[features]
@@ -93,8 +99,8 @@ y_test_actual = y_test.values  # Actual test prices
 # Evaluate initial model (on test set)
 mse = mean_squared_error(y_test_actual, y_pred_test)
 r2 = r2_score(y_test_actual, y_pred_test)
-print(f"Initial Model MSE (Actual Prices, Time + SMA + EMA + WMA): {mse:.4f}")
-print(f"Initial Model R^2 (Actual Prices, Time + SMA + EMA + WMA): {r2:.4f}")
+print(f"Initial Model MSE (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen): {mse:.4f}")
+print(f"Initial Model R^2 (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen): {r2:.4f}")
 
 # Expanded hyperparameter tuning
 param_grid = {
@@ -104,7 +110,7 @@ param_grid = {
 }
 grid = GridSearchCV(SVR(kernel='rbf'), param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1, verbose=2)
 grid.fit(X_train_scaled, y_train_scaled)
-print(f"Best Parameters (Time + SMA + EMA + WMA): {grid.best_params_}")
+print(f"Best Parameters (Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen): {grid.best_params_}")
 
 # Train final model with best parameters
 best_svr = grid.best_estimator_
@@ -114,16 +120,16 @@ y_pred_test_best = scaler_Y.inverse_transform(y_pred_test_best_scaled.reshape(-1
 # Evaluate best model (on test set)
 best_mse = mean_squared_error(y_test_actual, y_pred_test_best)
 best_r2 = r2_score(y_test_actual, y_pred_test_best)
-print(f"Best Model MSE (Actual Prices, Time + SMA + EMA + WMA): {best_mse:.4f}")
-print(f"Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA): {best_r2:.4f}")
+print(f"Best Model MSE (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen): {best_mse:.4f}")
+print(f"Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen): {best_r2:.4f}")
 
 # Create time-series plot for test period only
 plt.figure(figsize=(12, 6))
 plt.plot(data.index[train_size:], y_test_actual, label='Actual S&P 500 Closing Price (Test)', color='blue')
-plt.plot(data.index[train_size:], y_pred_test_best, label='Predicted S&P 500 Closing Price (Test, Time + SMA + EMA + WMA)', color='red', linestyle='--')
+plt.plot(data.index[train_size:], y_pred_test_best, label='Predicted S&P 500 Closing Price (Test, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen)', color='red', linestyle='--')
 plt.xlabel('Date')
 plt.ylabel('S&P 500 Closing Price')
-plt.title('SVR: Actual vs Predicted S&P 500 Closing Prices (Test Period, Time + SMA + EMA + WMA, Tuned)')
+plt.title('SVR: Actual vs Predicted S&P 500 Closing Prices (Test Period, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen, Tuned)')
 plt.legend()
 plt.xticks(rotation=45)
 plt.tight_layout()
