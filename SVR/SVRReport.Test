@@ -1,0 +1,8 @@
+Best Parameters (SMA Only): {'C': 100, 'epsilon': 0.001, 'gamma': 0.001}
+Best Model MSE (Actual Prices, SMA Only): 21834.6335
+Best Model R^2 (Actual Prices, SMA Only): 0.7376
+
+Adding in EMA
+Best Parameters (Time + SMA + EMA): {'C': 100, 'epsilon': 0.01, 'gamma': 0.001}
+Best Model MSE (Actual Prices, Time + SMA + EMA): 14646.5014
+Best Model R^2 (Actual Prices, Time + SMA + EMA): 0.8240
