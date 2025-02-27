@@ -26,3 +26,27 @@ Add Ichimoku_Tenkan_sen
 Best Model MSE (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen): 11601.1399
 Best Model R^2 (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen): 0.8495
 -----------------------------------------------------------------------------------------------------------------
+
+
+Momentum Indicators (Why this so bad lmao)
+-----------------------------------------------------------------------------------------------------------------
+RSI Indicator only
+Best Model MSE (Actual Prices, Time + RSI): 2237221.1788
+Best Model R^2 (Actual Prices, Time + RSI): -25.8871
+
+Add Stochastic Oscillator
+Best Model MSE (Actual Prices, Time + RSI + Stochastic_Oscillator): 1705878.2163   
+Best Model R^2 (Actual Prices, Time + RSI + Stochastic_Oscillator): -19.5014 
+
+Add Rate Of Change
+Best Model MSE (Actual Prices, Time + RSI + Stochastic_Oscillator + ROC): 1962160.5632
+Best Model R^2 (Actual Prices, Time + RSI + Stochastic_Oscillator + ROC): -22.5814
+
+Add Momentum Indicator
+Best Model MSE (Actual Prices, Time + RSI + Stochastic_Oscillator + ROC + MOM): 1756691.4679
+Best Model R^2 (Actual Prices, Time + RSI + Stochastic_Oscillator + ROC + MOM): -20.1121
+
+Add Williams %R
+Best Model MSE (Actual Prices, Time + RSI + Stochastic_Oscillator + ROC + MOM + Williams_%R): 1723206.0099
+Best Model R^2 (Actual Prices, Time + RSI + Stochastic_Oscillator + ROC + MOM + Williams_%R): -19.7096
+-----------------------------------------------------------------------------------------------------------------
