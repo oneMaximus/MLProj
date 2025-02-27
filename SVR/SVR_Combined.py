@@ -152,14 +152,42 @@ best_r2 = r2_score(y_test_actual, y_pred_test_best)
 print(f"Best Model MSE (Actual Prices, All Indicators): {best_mse:.4f}")
 print(f"Best Model R^2 (Actual Prices, All Indicators): {best_r2:.4f}")
 
-# Create time-series plot for test period only
-plt.figure(figsize=(12, 6))
-plt.plot(data.index[train_size:], y_test_actual, label='Actual S&P 500 Closing Price (Test)', color='blue')
-plt.plot(data.index[train_size:], y_pred_test_best, label='Predicted S&P 500 Closing Price (Test, All Indicators)', color='red', linestyle='--')
-plt.xlabel('Date')
-plt.ylabel('S&P 500 Closing Price')
-plt.title('SVR: Actual vs Predicted S&P 500 Closing Prices (Test Period, All Indicators, Tuned)')
-plt.legend()
-plt.xticks(rotation=45)
+# Extract best epsilon for boundaries
+best_epsilon = grid.best_params_['epsilon']
+print(f"Best Epsilon Value: {best_epsilon:.4f}")
+
+# Create stacked plots: Indicators above, Prices below with Epsilon Boundaries
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
+
+# Plot 1: Technical Indicators (normalized for visualization) for test period
+test_indicators = data[features[1:]][train_size:]  # Exclude 'Time', use test period only
+scaler_vis = StandardScaler()  # Normalize for visualization
+normalized_indicators = scaler_vis.fit_transform(test_indicators)
+
+for i, indicator in enumerate(features[1:]):  # Skip 'Time'
+    ax1.plot(data.index[train_size:], normalized_indicators[:, i], label=indicator, alpha=0.5, linewidth=0.5)
+ax1.set_title('Normalized Technical Indicators (Test Period, 2022–2023)')
+ax1.set_ylabel('Normalized Value (Standardized)')
+ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+ax1.grid(True)
+
+# Plot 2: Actual vs. Predicted Prices (test period only) with Epsilon Boundaries
+ax2.plot(data.index[train_size:], y_test_actual, label='Actual S&P 500 Closing Price (Test)', color='blue')
+ax2.plot(data.index[train_size:], y_pred_test_best, label='Predicted S&P 500 Closing Price (Test, All Indicators, Tuned)', color='red', linestyle='--')
+
+# Calculate epsilon boundaries
+epsilon_upper = y_pred_test_best + best_epsilon
+epsilon_lower = y_pred_test_best - best_epsilon
+
+# Add epsilon boundaries as a shaded region
+ax2.fill_between(data.index[train_size:], epsilon_lower, epsilon_upper, color='black', alpha=0.2, label=f'Epsilon Tube (±{best_epsilon:.4f})')
+
+ax2.set_xlabel('Date')
+ax2.set_ylabel('S&P 500 Closing Price')
+ax2.set_title('SVR: Actual vs Predicted S&P 500 Closing Prices with Epsilon Boundaries (Test Period, All Indicators, Tuned)')
+ax2.legend()
+ax2.grid(True)
+ax2.tick_params(axis='x', rotation=45)
+
 plt.tight_layout()
 plt.show()
