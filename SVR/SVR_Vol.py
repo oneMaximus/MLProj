@@ -51,7 +51,7 @@ data = fetch_data()
 data = compute_indicators(data, mfi_window=14, vwap_window=14)
 
 # =============================================================================
-# PART 2: SVR Model Training, Tuning, and Time-Series Visualization (Test Period Only)
+# PART 2: SVR Model Training, Tuning, and Time-Series Visualization with Indicators Plot (Test Period Only)
 # =============================================================================
 
 # Define features (Time, OBV, MFI, VWAP)
@@ -113,14 +113,30 @@ best_r2 = r2_score(y_test_actual, y_pred_test_best)
 print(f"Best Model MSE (Actual Prices, Time + OBV + MFI + VWAP): {best_mse:.4f}")
 print(f"Best Model R^2 (Actual Prices, Time + OBV + MFI + VWAP): {best_r2:.4f}")
 
-# Create time-series plot for test period only
-plt.figure(figsize=(12, 6))
-plt.plot(data.index[train_size:], y_test_actual, label='Actual S&P 500 Closing Price (Test)', color='blue')
-plt.plot(data.index[train_size:], y_pred_test_best, label='Predicted S&P 500 Closing Price (Test, Time + OBV + MFI + VWAP)', color='red', linestyle='--')
-plt.xlabel('Date')
-plt.ylabel('S&P 500 Closing Price')
-plt.title('SVR: Actual vs Predicted S&P 500 Closing Prices (Test Period, Time + OBV + MFI + VWAP, Tuned)')
-plt.legend()
-plt.xticks(rotation=45)
+# Create stacked plots: Indicators above, Prices below
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
+
+# Plot 1: Technical Indicators (normalized for visualization) for test period
+test_indicators = data[features][train_size:]  # Use all features, including 'Time', for test period only
+scaler_vis = StandardScaler()  # Normalize for visualization
+normalized_indicators = scaler_vis.fit_transform(test_indicators)
+
+for i, indicator in enumerate(features):  # Include all features, including 'Time'
+    ax1.plot(data.index[train_size:], normalized_indicators[:, i], label=indicator, alpha=0.7, linewidth=1.0)
+ax1.set_title('Normalized Technical Indicators (Test Period, 2022–2023)')
+ax1.set_ylabel('Normalized Value (Standardized)')
+ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+ax1.grid(True)
+
+# Plot 2: Actual vs. Predicted Prices (test period only)
+ax2.plot(data.index[train_size:], y_test_actual, label='Actual S&P 500 Closing Price (Test)', color='blue')
+ax2.plot(data.index[train_size:], y_pred_test_best, label='Predicted S&P 500 Closing Price (Test, Time + OBV + MFI + VWAP)', color='red', linestyle='--')
+ax2.set_xlabel('Date')
+ax2.set_ylabel('S&P 500 Closing Price')
+ax2.set_title('SVR: Actual vs Predicted S&P 500 Closing Prices (Test Period, Time + OBV + MFI + VWAP, Tuned)')
+ax2.legend()
+ax2.grid(True)
+ax2.tick_params(axis='x', rotation=45)
+
 plt.tight_layout()
 plt.show()
