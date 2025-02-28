@@ -91,6 +91,21 @@ Best Model R^2 (Actual Prices, Time + Approx_AD + VIX): -30.4786
 
 Combined All Indicators (all 18 Indicators)
 -----------------------------------------------------------------------------------------------------------------
+80% Train 20% Test Split
 Best Model MSE (Actual Prices, All Indicators): 6053.7696
 Best Model R^2 (Actual Prices, All Indicators): 0.9215
+
+70% Train 20% Evaluation 10% Test
+Best Model MSE (Test, All Indicators): 4197.5083
+Best Model R^2 (Test, All Indicators): 0.8554
+
+60% Train 20% Evaluation 20% Test
+Best Model MSE (Test, All Indicators): 6191.0537
+Best Model R^2 (Test, All Indicators): 0.9197
+
+60% Train 20% Evaluation 20% Test + Linear Kernel (For some reason this took over 10mins run)
+est Parameters (All Indicators, Train + Val): {'C': 1, 'epsilon': 0.01, 'gamma': 'scale', 'kernel': 'linear'}
+Best Model MSE (Test, All Indicators): 5034.3043
+Best Model R^2 (Test, All Indicators): 0.9347
+Best Epsilon Value: 0.0100
 -----------------------------------------------------------------------------------------------------------------
