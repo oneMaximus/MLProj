@@ -186,9 +186,6 @@ with torch.no_grad():
 predictions = scaler_y.inverse_transform(np.array(predictions).reshape(-1, 1))
 actuals = scaler_y.inverse_transform(np.array(actuals).reshape(-1, 1))
 
-predictions = scaler_y.inverse_transform(np.array(predictions).flatten().reshape(-1, 1))
-actuals = scaler_y.inverse_transform(np.array(actuals).flatten().reshape(-1, 1))
-
 # =============================================================================
 # PART 4: Evaluation
 # =============================================================================
