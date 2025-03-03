@@ -1,0 +1,31 @@
+Shallow Neural Network Evaluation Results
+
+Model Parameters:
+StockPredictionNN(
+  (layers): Sequential(
+    (0): Linear(in_features=7, out_features=128, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=128, out_features=64, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=64, out_features=1, bias=True)
+  )
+)
+
+Price and Trend Indicators (6 Indicators)
+-----------------------------------------------------------------------------------------------------------------
+(Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen)
+
+Mean Squared Error (MSE): 2192744192.000000
+Root Mean Squared Error (RMSE): 46826.746545
+Mean Absolute Error (MAE): 38214.140625
+R² Score: 0.932972
+
+Feature ranking based on Permutation Importance:
+1. EMA: 0.1534
+2. Ichimoku_Tenkan_sen: 0.0246
+3. MACD: 0.0201
+4. WMA: 0.0100
+5. Parabolic_SAR: 0.0014
+6. Time: -0.0005
+7. SMA: -0.0024
+-----------------------------------------------------------------------------------------------------------------
