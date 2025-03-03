@@ -1,0 +1,20 @@
+Feature Importance (Random Forest):
+                  Feature  Importance
+0                    Time    0.255998
+3                     WMA    0.243918
+2                     EMA    0.207902
+1                     SMA    0.100097
+12         Bollinger_Mavg    0.070952
+6     Ichimoku_Tenkan_sen    0.062757
+15                   VWAP    0.042253
+13                    OBV    0.010552
+4                    MACD    0.001304
+9                     ROC    0.000949
+14                    MFI    0.000630
+10                    MOM    0.000553
+7                     RSI    0.000546
+17                    VIX    0.000534
+8   Stochastic_Oscillator    0.000370
+11            Williams_%R    0.000357
+16              Approx_AD    0.000309
+5           Parabolic_SAR    0.000017
