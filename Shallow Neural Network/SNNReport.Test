@@ -11,21 +11,27 @@ StockPredictionNN(
   )
 )
 
+BASELINE Evaluation 
+Combined All Indicators (all 18 Indicators)
+-----------------------------------------------------------------------------------------------------------------
+80% Train 20% Test Split (Actual Prices, All Indicators)
+
+Mean Squared Error (MSE): 20462.314453
+Root Mean Squared Error (RMSE): 143.046546
+Mean Absolute Error (MAE): 118.546486
+R² Score: 0.734503
+Mean Absolute Percentage Error (MAPE): 2.98%
+
+------------------------------------------------------------------------------------
+
 Price and Trend Indicators (6 Indicators)
 -----------------------------------------------------------------------------------------------------------------
-(Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen)
+80% Train 20% Test Split (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen)
 
-Mean Squared Error (MSE): 2192744192.000000
-Root Mean Squared Error (RMSE): 46826.746545
-Mean Absolute Error (MAE): 38214.140625
-R² Score: 0.932972
+Mean Squared Error (MSE): 3672.784180
+Root Mean Squared Error (RMSE): 60.603500
+Mean Absolute Error (MAE): 48.681187
+R² Score: 0.953048
+Mean Absolute Percentage Error (MAPE): 1.20%
 
-Feature ranking based on Permutation Importance:
-1. EMA: 0.1534
-2. Ichimoku_Tenkan_sen: 0.0246
-3. MACD: 0.0201
-4. WMA: 0.0100
-5. Parabolic_SAR: 0.0014
-6. Time: -0.0005
-7. SMA: -0.0024
 -----------------------------------------------------------------------------------------------------------------

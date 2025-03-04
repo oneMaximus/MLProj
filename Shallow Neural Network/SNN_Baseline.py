@@ -1,5 +1,5 @@
 # =============================================================================
-# PART 1: Data Fetching & Technical Indicator Calculation (Time, SMA, EMA, WMA, MACD, Parabolic_SAR, Ichimoku Cloud)
+# PART 1: Data Fetching & Technical Indicator Calculation (All Indicators)
 # =============================================================================
 import yfinance as yf
 import pandas as pd
@@ -8,6 +8,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from ta.trend import sma_indicator, ema_indicator, macd_diff, psar_down_indicator, ichimoku_a
+from ta.momentum import rsi, stoch, roc, williams_r
+from ta.volatility import bollinger_mavg, average_true_range
+from ta.volume import on_balance_volume, money_flow_index, volume_weighted_average_price
 import matplotlib.pyplot as plt
 
 from sklearn.preprocessing import StandardScaler
@@ -15,6 +18,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
+# Fetch S&P 500 data from Yahoo Finance
 def fetch_data(ticker="^GSPC", start="2018-01-01", end="2023-01-01"):
     """
     Download historical data for the given ticker.
@@ -24,6 +28,7 @@ def fetch_data(ticker="^GSPC", start="2018-01-01", end="2023-01-01"):
         data.columns = data.columns.get_level_values(0)
     return data
 
+# Custom WMA function
 def wma(prices, window):
     """
     Calculate Weighted Moving Average, giving higher weights to recent prices.
@@ -31,47 +36,85 @@ def wma(prices, window):
     weights = np.arange(1, window + 1)  # Weights: 1, 2, ..., 9 for a 9-day WMA
     return prices.rolling(window).apply(lambda x: np.dot(x, weights) / weights.sum(), raw=True)
 
-def compute_indicators(data, window=9):
+# Custom Momentum Indicator (MOM)
+def compute_momentum(close, window):
     """
-    Set up time as X, add SMA, EMA, WMA, MACD, Parabolic_SAR, and Ichimoku Cloud (Tenkan-sen) as technical indicators, with actual closing prices as Y.
+    Calculate Momentum Indicator.
     """
-    # Create time feature
-    data['Time'] = (data.index - data.index[0]).days  # Days since first date
+    return close - close.shift(window)
 
-    # Target: Next day's closing price
-    data['Y'] = data['Close'].shift(-1)  # Predict next day's closing price
+# Compute all indicators
+start_date = "2018-01-01"
+end_date = "2023-01-01"
 
-    # Technical indicators: SMA, EMA, WMA, MACD, Parabolic_SAR, and Ichimoku Cloud (Tenkan-sen)
-    close = data['Close']
-    high = data['High']
-    low = data['Low']
-    data['SMA'] = sma_indicator(close, window=window)
-    data['EMA'] = ema_indicator(close, window=window)
-    data['WMA'] = wma(close, window=window)
-    data['MACD'] = macd_diff(close)  # Default uses 12, 26, 9 (fast, slow, signal); we use diff for simplicity
-    data['Parabolic_SAR'] = psar_down_indicator(high, low, close)  # Uses default AF (0.02, max 0.2)
-    # Ichimoku Cloud: Tenkan-sen (9-period average, as per document)
-    data['Ichimoku_Tenkan_sen'] = (high.rolling(window=9).max() + low.rolling(window=9).min()) / 2
+# Fetch S&P 500 data
+sp500_data = fetch_data(ticker="^GSPC", start=start_date, end=end_date)
 
-    # Drop NaN values
-    data.dropna(inplace=True)
-    return data
+# Extract data
+close = sp500_data['Close']
+high = sp500_data['High']
+low = sp500_data['Low']
+volume = sp500_data['Volume']
 
-# Download data and compute indicators
-data = fetch_data()
-data = compute_indicators(data, window=9)
+# Fetch VIX data
+vix_data = fetch_data(ticker="^VIX", start=start_date, end=end_date)
+vix_close = vix_data['Close'].reindex(sp500_data.index, method='ffill')
+
+# Create DataFrame for indicators
+indicators = pd.DataFrame(index=sp500_data.index)
+
+# Time feature
+indicators['Time'] = (sp500_data.index - sp500_data.index[0]).days
+
+# Target
+indicators['Y'] = sp500_data['Close'].shift(-1)
+
+# Technical Indicators
+window = 9  # Default window for most indicators
+
+# Trend Indicators
+indicators['SMA'] = sma_indicator(close, window=window)
+indicators['EMA'] = ema_indicator(close, window=window)
+indicators['WMA'] = wma(close, window=window)
+indicators['MACD'] = macd_diff(close)  # Default uses 12, 26, 9; we use diff
+indicators['Parabolic_SAR'] = psar_down_indicator(high, low, close)  # Default AF (0.02, max 0.2)
+indicators['Ichimoku_Tenkan_sen'] = (high.rolling(window=9).max() + low.rolling(window=9).min()) / 2  # 9-period Tenkan-sen
+
+# Momentum Indicators
+indicators['RSI'] = rsi(close, window=window)  # 9-period RSI
+indicators['Stochastic_Oscillator'] = stoch(high, low, close, window=window, smooth_window=3)  # 9-period %K
+indicators['ROC'] = roc(close, window=window)  # 9-period Rate of Change
+indicators['MOM'] = compute_momentum(close, window=window)  # 9-period Momentum
+indicators['Williams_%R'] = williams_r(high, low, close, lbp=window)  # 9-period Williams %R
+
+# Volatility & Volume Indicators
+indicators['Bollinger_Mavg'] = bollinger_mavg(close, window=window)  # 9-period middle Bollinger Band
+indicators['OBV'] = on_balance_volume(close, volume)  # On-Balance Volume
+indicators['MFI'] = money_flow_index(high, low, close, volume, window=14)  # 14-period MFI
+indicators['VWAP'] = volume_weighted_average_price(high, low, close, volume, window=14)  # 14-period VWAP
+indicators['Approx_AD'] = (sp500_data['Close'] - sp500_data['Open']) * volume.cumsum()  # Approximated A/D Line
+indicators['VIX'] = vix_close  # Volatility Index
+
+# Drop NaN values
+indicators.dropna(inplace=True)
+
+# Prepare data for SVR
+data = indicators
 
 # =============================================================================
 # PART 2: Data Pre-processing
 # =============================================================================
 
-# Define features (Time, SMA, EMA, WMA, MACD, Parabolic_SAR, Ichimoku_Tenkan_sen)
-features = ['Time', 'SMA', 'EMA', 'WMA', 'MACD', 'Parabolic_SAR', 'Ichimoku_Tenkan_sen']
-target = ['Close']
+# Define features (all indicators + Time)
+features = [
+    'Time', 'SMA', 'EMA', 'WMA', 'MACD', 'Parabolic_SAR', 'Ichimoku_Tenkan_sen',
+    'RSI', 'Stochastic_Oscillator', 'ROC', 'MOM', 'Williams_%R', 'Bollinger_Mavg',
+    'OBV', 'MFI', 'VWAP', 'Approx_AD', 'VIX'
+]
 
 # Prepare X (features) and y (actual closing prices)
-X = data[features].values
-y = data[target].values.reshape(-1, 1)  # Ensure y is 2D
+X = data[features]
+y = data['Y'].values.reshape(-1, 1)  # Ensure y is 2D
 
 # Time-based split for time series
 train_size = int(len(data) * 0.8)
@@ -212,50 +255,4 @@ plt.xlabel("Time (Test Data Points)")
 plt.ylabel("Stock Price")
 plt.title("Stock Price Prediction: Actual vs Predicted")
 plt.legend()
-plt.show()
-
-# Ensure model is in evaluation mode
-model.eval()
-
-# =============================================================================
-# PART 5: Permutation Feature Importance
-# =============================================================================
-
-# Permutation Importance Calculation
-def permutation_importance(model, X_test, y_test, metric=mean_squared_error, n_repeats=10):
-    y_test_np = y_test.numpy()  # Convert tensor to NumPy
-    baseline_score = metric(y_test_np, model(X_test).detach().numpy())
-    importance_scores = np.zeros(X_test.shape[1])
-
-    for i in range(X_test.shape[1]):
-        permuted_scores = []
-        for _ in range(n_repeats):
-            X_permuted = X_test.clone()
-            X_permuted[:, i] = X_test[torch.randperm(X_test.shape[0]), i]  # Shuffle only one column
-            permuted_score = metric(y_test_np, model(X_permuted).detach().numpy())
-            permuted_scores.append(permuted_score)
-
-        importance_scores[i] = np.mean(permuted_scores) - baseline_score
-
-    return importance_scores
-
-# Compute permutation importance
-perm_importance = permutation_importance(model, X_test_tensor, y_test_tensor)
-
-# Rank features based on permutation importance
-features = np.array(features)  # Ensure feature names are in array format
-perm_feature_importance = sorted(zip(features, perm_importance), key=lambda x: x[1], reverse=True)
-
-# Display ranked features
-print("Feature ranking based on Permutation Importance:")
-for i, (feature, importance) in enumerate(perm_feature_importance, 1):
-    print(f"{i}. {feature}: {importance:.4f}")
-
-# Bar plot of permutation importance
-plt.figure(figsize=(8,5))
-plt.barh([f[0] for f in perm_feature_importance], [f[1] for f in perm_feature_importance])
-plt.xlabel("Permutation Importance")
-plt.ylabel("Feature")
-plt.title("Feature Importance Ranking (Permutation)")
-plt.gca().invert_yaxis()
 plt.show()
