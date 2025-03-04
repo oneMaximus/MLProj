@@ -1,0 +1,151 @@
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit
+from sklearn.preprocessing import StandardScaler
+import yfinance as yf
+import ta
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Fetch S&P 500 data
+data = yf.download('^GSPC', start='2010-01-01', end='2023-01-01')
+
+close_prices = data['Close'].squeeze()
+high_prices = data['High'].squeeze()
+low_prices = data['Low'].squeeze()
+volume = data['Volume'].squeeze()
+
+# Compute technical indicators
+data['SMA'] = ta.trend.sma_indicator(close_prices, window=9)
+data['EMA'] = ta.trend.ema_indicator(close_prices, window=9)
+data['WMA'] = ta.trend.wma_indicator(close_prices, window=9)
+data['MACD'] = ta.trend.macd_diff(close_prices)
+data['Parabolic_SAR'] = ta.trend.psar_down_indicator(high_prices, low_prices, close_prices)
+data['Ichimoku'] = ta.trend.ichimoku_a(high_prices, low_prices)
+
+data['RSI'] = ta.momentum.rsi(close_prices, window=9)
+data['Stochastic_Oscillator'] = ta.momentum.stoch(high_prices, low_prices, close_prices)
+data['ROC'] = ta.momentum.roc(close_prices, window=9)
+data['MOM'] = ta.momentum.roc(close_prices, window=9)
+data['Williams_R'] = ta.momentum.williams_r(high_prices, low_prices, close_prices)
+
+data['Bollinger_Mavg'] = ta.volatility.bollinger_mavg(close_prices)
+data['ATR'] = ta.volatility.average_true_range(high_prices, low_prices, close_prices)
+
+data['OBV'] = ta.volume.on_balance_volume(close_prices, volume)
+data['Accum_Dist'] = ta.volume.acc_dist_index(high_prices, low_prices, close_prices, volume)
+data['MFI'] = ta.volume.money_flow_index(high_prices, low_prices, close_prices, volume, window=9)
+data['VWAP'] = ta.volume.volume_weighted_average_price(high_prices, low_prices, close_prices, volume, window=9)
+
+# Drop NaN values
+data.dropna(inplace=True)
+
+# Create Lag Features
+data['Lag_1'] = data['Close'].shift(1)
+data.dropna(inplace=True)
+
+# Prepare feature matrix and target variable
+features = ['Lag_1', 'SMA', 'EMA', 'WMA', 'MACD', 'Parabolic_SAR', 'Ichimoku',
+            'RSI', 'Stochastic_Oscillator', 'ROC', 'MOM', 'Williams_R', 'Bollinger_Mavg', 'ATR',
+            'OBV', 'Accum_Dist', 'MFI', 'VWAP']
+
+X = data[features]
+y = data['Close']
+
+# Train-Test Split (Time Series split for time-dependent data)
+train_data = data[:-7]
+test_data = data[-7:]
+
+X_train, y_train = train_data[features], train_data['Close']
+X_test, y_test = test_data[features], test_data['Close']
+
+# Feature Scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Time-Series Cross-Validation
+tscv = TimeSeriesSplit(n_splits=5)
+
+# Randomized Search for Hyperparameter Tuning
+param_dist = {
+    'n_estimators': [200, 300, 500, 550, 600, 680, 800, 1000],
+    'max_depth': [2, 3, 5, 10, 20],
+    'min_samples_split': [2, 5, 10, 20],
+    'min_samples_leaf': [10, 20, 30, 40, 50],
+    'max_features': ['sqrt', 'log2']
+}
+
+rf_model = RandomForestRegressor(random_state=42, oob_score=True, verbose=2)
+random_search = RandomizedSearchCV(rf_model, param_dist, n_iter=50, cv=tscv, scoring='neg_mean_absolute_error', n_jobs=-1, verbose=1)
+random_search.fit(X_train_scaled, y_train)
+
+# Best Hyperparameters from RandomizedSearchCV
+best_rf_model = random_search.best_estimator_
+print(f"Best Parameters: {random_search.best_params_}")
+
+# Feature Importance Analysis (EXCLUDING Lag_1)
+feature_importances = best_rf_model.feature_importances_
+importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
+
+# Remove Lag_1 from the importance table for analysis
+importance_df = importance_df[importance_df['Feature'] != 'Lag_1']
+importance_df.sort_values(by='Importance', ascending=False, inplace=True)
+
+# **Remove Low-Importance Features**
+threshold = 0.005
+important_features = importance_df[importance_df['Importance'] > threshold]['Feature'].tolist()
+
+# Always keep 'Lag_1' for prediction, even if it's removed from importance analysis
+important_features.append('Lag_1')
+
+X_train_filtered = X_train[important_features]
+X_test_filtered = X_test[important_features]
+
+# Retrain the model with selected features
+best_rf_model.fit(X_train_filtered, y_train)
+
+# **Recursive Forecasting Fix**
+forecast = []
+last_feature_vector = X_train_filtered.iloc[-1].values
+
+for i in range(len(X_test_filtered)):
+    next_pred = best_rf_model.predict([last_feature_vector])[0]
+    forecast.append(next_pred)
+
+    # Update last feature vector: shift by 1 day
+    last_feature_vector = np.roll(last_feature_vector, -1)
+    last_feature_vector[-1] = next_pred  # Replace last value with predicted value
+
+# **Evaluate Model Performance**
+mae = mean_absolute_error(y_test, forecast)
+rmse = np.sqrt(mean_squared_error(y_test, forecast))
+print(f"Mean Absolute Error: {mae:.2f}")
+print(f"Root Mean Squared Error: {rmse:.2f}")
+
+# **Ensure Previous Plots Are Closed**
+plt.close('all')
+
+# **Feature Importance Plot (EXCLUDING Lag_1)**
+plt.figure(figsize=(10, 6))
+plt.barh(importance_df['Feature'], importance_df['Importance'], color='royalblue')
+plt.xlabel('Feature Importance Score')
+plt.ylabel('Features')
+plt.title('Feature Importance in Random Forest Model (Excluding Lag_1)')
+plt.gca().invert_yaxis()
+plt.show()
+
+plt.close()
+
+# **Plot Actual vs Predicted Prices**
+plt.figure(figsize=(12, 6))
+plt.plot(y_test.values, label='Actual Price', marker='o')
+plt.plot(forecast, label='Optimized Predicted Price', marker='s', linestyle='dashed', color='red')
+plt.xlabel('Day')
+plt.ylabel('Stock Price')
+plt.title('Final Model: Actual vs Predicted Stock Prices (Last 7 Days)')
+plt.legend()
+plt.xticks(range(len(y_test)), y_test.index.strftime('%Y-%m-%d'), rotation=45)
+plt.grid(True)
+plt.show()
