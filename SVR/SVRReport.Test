@@ -109,6 +109,6 @@ Best Model MSE (Test, All Indicators): 5034.3043
 Best Model R^2 (Test, All Indicators): 0.9347
 Best Epsilon Value: 0.0100
 -----------------------------------------------------------------------------------------------------------------
-100% Training with best Parameters and Predict
+6060% Train 20% Evaluation 20% Test + Linear Kernel Price Prediction
 
-Predicted S&P 500 Close for 2025-03-05: 5681.66
+Predicted S&P 500 Close for 2025-03-06: 5749.93 (Close ytd 5842.62)
