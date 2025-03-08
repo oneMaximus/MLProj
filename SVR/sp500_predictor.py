@@ -98,16 +98,20 @@ print("Infinites in X:", np.isinf(X).sum().sum())
 print("NaNs in y:", y.isna().sum())
 print("Infinites in y:", np.isinf(y).sum())
 
-# Time-based split for 80/20 train/test
+
+# Time-based split for 60% train, 20% validation, 20% test
 total_size = len(data)
-train_size = int(total_size * 0.8)  # 80% for training
-test_size = total_size - train_size  # 20% for testing
+train_size = int(total_size * 0.6)  # 60% for training
+val_size = int(total_size * 0.2)    # 20% for validation
+test_size = total_size - train_size - val_size  # 20% for testing
 
 # Split the data
 X_train = X[:train_size]
 y_train = y[:train_size]
-X_test = X[train_size:]
-y_test = y[train_size:]
+X_val = X[train_size:train_size + val_size]
+y_val = y[train_size:train_size + val_size]
+X_test = X[train_size + val_size:]
+y_test = y[train_size + val_size:]
 
 # Scale features (X) and target (Y) for train and test
 scaler_X = StandardScaler()
@@ -121,10 +125,10 @@ y_test_scaled = scaler_Y.transform(y_test.values.reshape(-1, 1)).ravel()
 
 # Hyperparameter tuning using scaled train data
 param_grid = {
-    'C': [0.01, 0.1, 1, 10, 100, 1000],  # Your range
-    'epsilon': [0.001, 0.01, 0.1, 0.5, 1.0, 2.0],  # Your expanded epsilon range
-    'gamma': ['scale', 'auto', 0.001, 0.01, 0.1],  # Your gamma range
-    'kernel': ['rbf', 'linear']  # Your kernel options
+    'C': [0.01, 0.1, 1, 10, 100, 1000], 
+    'epsilon': [0.001, 0.01, 0.1, 0.5, 1.0, 2.0],  
+    'gamma': ['scale', 'auto', 0.001, 0.01, 0.1],  
+    'kernel': ['rbf', 'linear']  
 }
 
 grid = GridSearchCV(SVR(kernel='rbf'), param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1, verbose=2)

@@ -108,7 +108,17 @@ est Parameters (All Indicators, Train + Val): {'C': 1, 'epsilon': 0.01, 'gamma':
 Best Model MSE (Test, All Indicators): 5034.3043
 Best Model R^2 (Test, All Indicators): 0.9347
 Best Epsilon Value: 0.0100
+
+--SP500_predictor set----
+60% Train 20% Evaluation 20% Test + Linear Kernel (For some reason this took over 10mins run)
+Test MSE (Test, All Indicators): 3141.4974
+Test R^2 (Test, All Indicators): 0.9889
 -----------------------------------------------------------------------------------------------------------------
-6060% Train 20% Evaluation 20% Test + Linear Kernel Price Prediction
+60% Train 20% Evaluation 20% Test + Linear Kernel Price Prediction
 
 Predicted S&P 500 Close for 2025-03-06: 5749.93 (Close ytd 5842.62)
+Actual S&P 500 Close for 2025-03-06: 5738.53
+
+Predicted S&P 500 Close for 2025-03-07: 5828.04
+Actual S&P 500 Close for 2025-03-06: 5,770.19
+
