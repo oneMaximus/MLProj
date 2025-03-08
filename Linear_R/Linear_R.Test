@@ -1,0 +1,40 @@
+Linear Regression Findings Report
+
+-----------------------------------------------------------------------------------------------------------------
+Combined All Indicators (All 18 Indicators)
+-----------------------------------------------------------------------------------------------------------------
+80% Train 20% Test Split (Actual Prices, All Indicators)
+Mean Squared Error (MSE): 5296.6125
+Root Mean Squared Error (RMSE): 72.777830
+Mean Absolute Error (MAE): 59.978352
+R² Score: 0.931277
+Mean Absolute Percentage Error (MAPE): 1.48% 
+
+Feature Importance (Higher = More Impactful):
+          Feature  Importance
+0             EMA  761.823978
+1            VWAP  207.833226
+2             SMA  167.321991
+3  Bollinger_Mavg  167.321991
+4             ROC   33.972361
+5             RSI   16.688424
+6             OBV    3.703863
+7             MFI    1.887256
+8            Time    1.843016
+9             ATR    1.254479
+
+-----------------------------------------------------------------------------------------------------------------
+Top 5 Indicators:
+Mean Squared Error (MSE): 5739.8516
+Root Mean Squared Error (RMSE): 75.761809
+Mean Absolute Error (MAE): 62.305542
+R² Score: 0.929640
+Mean Absolute Percentage Error (MAPE): 1.54%    
+
+Feature Importance (Higher = More Impactful):       
+            Feature   Importance
+0             EMA  1026.757811
+1  Bollinger_Mavg   224.451003
+2             SMA   224.451003
+3            VWAP    57.455933
+4             ROC    37.662280
