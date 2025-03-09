@@ -1,3 +1,5 @@
+# TrainTestVal Split 70% 15% 15% (OPTIMISED)
+
 # =============================================================================
 # PART 1: Data Fetching & Technical Indicator Calculation (All Indicators)
 # =============================================================================
@@ -19,7 +21,7 @@ from torch.utils.data import TensorDataset, DataLoader
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # Fetch S&P 500 data from Yahoo Finance
-def fetch_data(ticker="^GSPC", start="2018-01-01", end="2023-01-01"):
+def fetch_data(ticker="^GSPC", start="2022-01-01", end="2023-01-01"):
     """
     Download historical data for the given ticker.
     """
@@ -116,35 +118,46 @@ features = [
 X = data[features]
 y = data['Y'].values.reshape(-1, 1)  # Ensure y is 2D
 
-# Time-based split for time series
-train_size = int(len(data) * 0.8)
-X_train, X_test = X[:train_size], X[train_size:]
-y_train, y_test = y[:train_size], y[train_size:]
+# Time-based split for time series (70% train, 15% validation, 15% test)
+train_size = int(len(data) * 0.7)
+val_size = int(len(data) * 0.15)
+test_size = len(data) - train_size - val_size
+
+X_train, X_val, X_test = X[:train_size], X[train_size:train_size+val_size], X[train_size+val_size:]
+y_train, y_val, y_test = y[:train_size], y[train_size:train_size+val_size], y[train_size+val_size:]
 
 # Normalize the training and testing data
 scaler_X = StandardScaler()
 scaler_y = StandardScaler()
 
-# Fit scaler on training data only and transform both train and test sets
+# Normalize the training, validation, and testing data
 X_train = scaler_X.fit_transform(X_train)
+X_val = scaler_X.transform(X_val)
 X_test = scaler_X.transform(X_test)
+
 y_train = scaler_y.fit_transform(y_train)
+y_val = scaler_y.transform(y_val)
 y_test = scaler_y.transform(y_test)
 
 # Convert to tensors
 X_train_tensor = torch.FloatTensor(X_train)
 y_train_tensor = torch.FloatTensor(y_train)
 
+X_val_tensor = torch.FloatTensor(X_val)
+y_val_tensor = torch.FloatTensor(y_val)
+
 X_test_tensor = torch.FloatTensor(X_test)
 y_test_tensor = torch.FloatTensor(y_test)
 
 # Create TensorDatasets
 train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
+val_dataset = TensorDataset(X_val_tensor, y_val_tensor)
 test_dataset = TensorDataset(X_test_tensor, y_test_tensor)
 
 # Create DataLoaders
-batch_size = 8
+batch_size = 32  # Increased batch size for stability
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 # =============================================================================
@@ -159,8 +172,10 @@ class StockPredictionNN(nn.Module):
         self.layers = nn.Sequential(
             nn.Linear(in_features=input_size, out_features=hidden_size1),
             nn.ReLU(),
+            nn.Dropout(0.3),  # Dropout to prevent overfitting
             nn.Linear(in_features=hidden_size1, out_features=hidden_size2),
             nn.ReLU(),
+            nn.Dropout(0.3),  # Dropout to prevent overfitting
             nn.Linear(in_features=hidden_size2, out_features=output_size)
         )
 
@@ -169,9 +184,11 @@ class StockPredictionNN(nn.Module):
 
 # Hyperparameters
 input_size = len(features)  # Number of input features
-hidden_size1 = 128 # First hidden layer neurons
-hidden_size2 = 64  # Second hidden layer neurons
+hidden_size1 = 256 # First hidden layer neurons (Increased neurons for stability)
+hidden_size2 = 128  # Second hidden layer neurons
 output_size = 1  # Predicting one value (e.g., stock price)
+learning_rate = 0.0003  # Reduced learning rate for better convergence
+num_epochs = 100
 
 # Initialize model
 model = StockPredictionNN(input_size, hidden_size1, hidden_size2, output_size)
@@ -181,13 +198,23 @@ print(model)
 
 # Initialize loss function & optimizer
 criterion = nn.MSELoss() # Mean Squared Error for regression
-optimizer = optim.Adam(model.parameters(), lr = 0.001)
+optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)  # L2 regularization
+
+# Learning Rate Scheduler
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=5, factor=0.5, verbose=True)
 
 # Training loop
-num_epochs = 100
+train_losses = []
+val_losses = []
+patience = 10  # Early stopping patience
+best_val_loss = float("inf")
+no_improvement = 0
+
 for epoch in range(num_epochs):
 
     model.train()
+    epoch_train_loss = 0.0
 
     for X_train, y_train in train_loader:
 
@@ -206,9 +233,48 @@ for epoch in range(num_epochs):
         # Update model parameters
         optimizer.step()
 
-    # Print loss every 10 epochs
+        epoch_train_loss += loss.item()
+
+    epoch_train_loss /= len(train_loader)
+    train_losses.append(epoch_train_loss)
+
+    # Validation loss computation
+    model.eval()
+    epoch_val_loss = 0.0
+    with torch.no_grad():
+        for X_val_batch, y_val_batch in val_loader:
+            y_val_pred = model(X_val_batch)
+            val_loss = criterion(y_val_pred, y_val_batch)
+            epoch_val_loss += val_loss.item()
+    epoch_val_loss /= len(val_loader)
+    val_losses.append(epoch_val_loss)
+
+    # Adjust learning rate based on validation loss
+    scheduler.step(epoch_val_loss)
+
+    if epoch_val_loss < best_val_loss:
+        best_val_loss = epoch_val_loss
+        no_improvement = 0
+    else:
+        no_improvement += 1
+
+    if no_improvement >= patience:
+        print(f"Early stopping at epoch {epoch + 1}")
+        break
+
     if (epoch + 1) % 10 == 0:
-        print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}")
+        print(f"Epoch [{epoch + 1}/{num_epochs}], Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}")
+
+# Plot learning curves
+plt.figure(figsize=(10, 5))
+plt.plot(range(1, len(train_losses)+1), train_losses, label='Training Loss', linestyle='solid', marker='o')
+plt.plot(range(1, len(val_losses)+1), val_losses, label='Validation Loss', linestyle='dashed', marker='s')
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.title("Training and Validation Loss Over Epochs")
+plt.legend()
+plt.grid()
+plt.show()
 
 # Set the model to evaluation mode
 model.eval()
