@@ -1,0 +1,252 @@
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import yfinance as yf
+import ta as ta
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import  GridSearchCV
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
+# Fetch S&P 500 data and prepare it
+data = yf.download('^GSPC', start='2018-01-01', end='2023-01-01')
+
+close_prices = data['Close'].squeeze()
+high_prices = data['High'].squeeze()
+low_prices = data['Low'].squeeze()
+volume = data['Volume'].squeeze()
+
+# Define all features
+price_trend_features = ['SMA', 'EMA', 'WMA', 'MACD', 'Parabolic_SAR', 'Ichimoku']
+momentum_features = ['RSI', 'Stochastic_Oscillator', 'ROC', 'MOM', 'Williams_R']
+volatility_features = ['Bollinger_Mavg', 'ATR']
+volume_features = ['OBV', 'Accum_Dist', 'MFI', 'VWAP']
+
+# Calculate Price & Trend Indicators
+data['SMA'] = ta.trend.sma_indicator(close_prices, window=9)
+data['EMA'] = ta.trend.ema_indicator(close_prices, window=9)
+data['WMA'] = ta.trend.wma_indicator(close_prices, window=9)
+data['MACD'] = ta.trend.macd_diff(close_prices)
+data['Parabolic_SAR'] = ta.trend.psar_down_indicator(high_prices, low_prices, close_prices)
+data['Ichimoku'] = ta.trend.ichimoku_a(high_prices, low_prices)
+
+# Calculate Momentum Indicators
+data['RSI'] = ta.momentum.rsi(close_prices, window=9)
+data['Stochastic_Oscillator'] = ta.momentum.stoch(high_prices, low_prices, close_prices)
+data['ROC'] = ta.momentum.roc(close_prices, window=9)
+data['MOM'] = ta.momentum.roc(close_prices, window=9)
+data['Williams_R'] = ta.momentum.williams_r(high_prices, low_prices, close_prices)
+
+# Calculate Volatility Indicators
+data['Bollinger_Mavg'] = ta.volatility.bollinger_mavg(close_prices)
+data['ATR'] = ta.volatility.average_true_range(high_prices, low_prices, close_prices)
+
+# Calculate Volume Indicators
+data['OBV'] = ta.volume.on_balance_volume(close_prices, volume)
+data['Accum_Dist'] = ta.volume.acc_dist_index(high_prices, low_prices, close_prices, volume)
+data['MFI'] = ta.volume.money_flow_index(high_prices, low_prices, close_prices, volume, window=9)
+data['VWAP'] = ta.volume.volume_weighted_average_price(high_prices, low_prices, close_prices, volume, window=9)
+
+# Drop NaN values (due to indicator calculations)
+data.dropna(inplace=True)
+
+# Create Lag Features
+data['Lag_1'] = data['Close'].shift(1)
+data.dropna(inplace=True)  # Drop rows with NaN values from lagging
+
+# Prepare feature matrix and target variable based on found feature importance
+# X = data[['Lag_1'] + price_trend_features + momentum_features + volatility_features + volume_features]
+
+# X = data[['Lag_1', 'WMA', 'EMA', 'SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku' ]]
+X = data[['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku']]
+
+y = data['Close']
+
+# Split data: 60% Train, 20% Validation, 20% Test
+total_size = len(data)
+train_size = int(total_size * 0.6)
+val_size = int(total_size * 0.2)
+
+X_train = X[:train_size]
+y_train = y[:train_size]
+X_val = X[train_size:train_size + val_size]
+y_val = y[train_size:train_size + val_size]
+X_test = X[train_size + val_size:]
+y_test = y[train_size + val_size:]
+
+# Scale features (X) and target (Y) for train, val, and test
+scaler_X = StandardScaler()
+scaler_Y = StandardScaler()
+
+# Fit scaler on training data only, transform all sets
+X_train_scaled = scaler_X.fit_transform(X_train)
+X_val_scaled = scaler_X.transform(X_val)
+X_test_scaled = scaler_X.transform(X_test)
+y_train_scaled = scaler_Y.fit_transform(y_train.values.reshape(-1, 1)).ravel()
+y_val_scaled = scaler_Y.transform(y_val.values.reshape(-1, 1)).ravel()
+y_test_scaled = scaler_Y.transform(y_test.values.reshape(-1, 1)).ravel()
+
+# Train RandomForestRegressor on full training data
+modelRF = RandomForestRegressor(n_estimators=300, random_state=42, max_depth=10)
+modelRF.fit(X_train_scaled, y_train_scaled)
+
+# Predict on validation and test sets
+y_pred_val_scaled = modelRF.predict(X_val_scaled)
+y_pred_val = scaler_Y.inverse_transform(y_pred_val_scaled.reshape(-1, 1)).ravel()
+
+# Evaluate initial model (on validation set)
+val_mse = mean_squared_error(y_val, y_pred_val)
+val_r2 = r2_score(y_val, y_pred_val)
+print(f"Initial Model MSE (Validation, All Indicators): {val_mse:.4f}")
+print(f"Initial Model R^2 (Validation, All Indicators): {val_r2:.4f}")
+
+# Predict for test set (initial model)
+y_pred_test_scaled = modelRF.predict(X_test_scaled)
+y_pred_test = scaler_Y.inverse_transform(y_pred_test_scaled.reshape(-1, 1)).ravel()
+y_test_actual = y_test.values  # Actual test prices
+
+# Evaluate initial model (on test set)
+test_mse = mean_squared_error(y_test_actual, y_pred_test)
+test_r2 = r2_score(y_test_actual, y_pred_test)
+print(f"Initial Model MSE (Test, All Indicators): {test_mse:.4f}")
+print(f"Initial Model R^2 (Test, All Indicators): {test_r2:.4f}")
+
+# Concatenate scaled training and validation data for hyperparameter tuning
+X_train_val_scaled = np.vstack((X_train_scaled, X_val_scaled))
+y_train_val_scaled = np.concatenate((y_train_scaled, y_val_scaled))
+
+# Expanded hyperparameter tuning using scaled train and validation data
+param_grid = {
+    'n_estimators': [500, 800, 1000, 1200],
+    'max_depth': [5, 10, 15, 20],
+    'min_samples_split': [5, 10, 15, 20],
+    'min_samples_leaf': [5, 10, 20, 30]
+}
+
+# Initialize RandomForestRegressor
+rf = RandomForestRegressor(random_state=42)
+
+# Perform Grid Search with Cross-Validation
+grid_search = GridSearchCV(
+    estimator=rf, param_grid=param_grid, 
+    cv=5, scoring='neg_mean_squared_error', 
+    n_jobs=-1, verbose=2
+)
+
+# Fit the grid search model on training + validation data
+grid_search.fit(X_train_val_scaled, y_train_val_scaled)
+
+# Extract best parameters
+best_params = grid_search.best_params_
+print(f"Best Hyperparameters: {best_params}")
+
+# Train a new RandomForestRegressor with the best hyperparameters
+best_rf = RandomForestRegressor(**best_params, random_state=42)
+best_rf.fit(X_train_scaled, y_train_scaled)
+
+# Predict on validation set
+y_pred_val_scaled = best_rf.predict(X_val_scaled)
+y_pred_val = scaler_Y.inverse_transform(y_pred_val_scaled.reshape(-1, 1)).ravel()
+
+# Print Preperation
+indicator_list = [col[0] if isinstance(col, tuple) else col for col in X.columns]
+
+# Evaluate model on validation set
+val_mse = mean_squared_error(y_val, y_pred_val)
+val_r2 = r2_score(y_val, y_pred_val)
+
+print(f"Model MSE ({indicator_list}): {val_mse:.4f}")
+print(f"Model R² ({indicator_list}): {val_r2:.4f}")
+
+# Predict on test set
+y_pred_test_scaled = best_rf.predict(X_test_scaled)
+y_pred_test = scaler_Y.inverse_transform(y_pred_test_scaled.reshape(-1, 1)).ravel()
+
+# Evaluate model on test set
+test_mse = mean_squared_error(y_test_actual, y_pred_test)
+test_r2 = r2_score(y_test_actual, y_pred_test)
+
+print(f"Model MSE ({indicator_list}): {test_mse:.4f}")
+print(f"Model R² ({indicator_list}): {test_r2:.4f}")
+
+# =============================================================================
+# Visualization: Technical Indicators & Actual vs. Predicted Prices
+# =============================================================================
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
+
+# Plot 1: Technical Indicators (normalized for visualization) for test period
+test_indicators = X_test.copy()
+scaler_vis = StandardScaler()  # Normalize for visualization
+normalized_indicators = scaler_vis.fit_transform(test_indicators)
+
+for i, indicator in enumerate(X_test.columns):
+    ax1.plot(X_test.index, normalized_indicators[:, i], label=indicator, alpha=0.5, linewidth=0.5)
+ax1.set_title('Normalized Technical Indicators (Test Period)')
+ax1.set_ylabel('Normalized Value (Standardized)')
+ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+ax1.grid(True)
+
+# Plot 2: Actual vs. Predicted Prices (test period only) with Confidence Intervals
+ax2.plot(X_test.index, y_test_actual, label='Actual S&P 500 Closing Price (Test)', color='blue')
+ax2.plot(X_test.index, y_pred_test, label='Predicted S&P 500 Closing Price (Test, RFR)', color='red', linestyle='--')
+
+# Calculate prediction standard deviation for an error margin
+error_margin = np.std(y_test_actual - y_pred_test)
+
+# Add error boundaries as a shaded region (± 1 standard deviation)
+ax2.fill_between(X_test.index, y_pred_test - error_margin, y_pred_test + error_margin, color='black', alpha=0.2, label=f'Error Margin (±{error_margin:.2f})')
+
+ax2.set_xlabel('Date')
+ax2.set_ylabel('S&P 500 Closing Price')
+ax2.set_title('Random Forest: Actual vs Predicted S&P 500 Closing Prices with Error Margin')
+ax2.legend()
+ax2.grid(True)
+ax2.tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()
+
+
+# # =============================================================================
+# # Recursive Forecasting for Next 7 Days
+# # =============================================================================
+# future_predictions = []  # Stores predicted stock prices for next 7 days
+# last_known_features = X_test.iloc[-1].copy()  # Start with the last available data
+
+# for i in range(7):  # Predicting for the next 7 days
+#     # Convert feature set to DataFrame for model prediction
+#     feature_set = pd.DataFrame([last_known_features], columns=X_train.columns)
+    
+#     # Predict next day's stock price
+#     next_pred_scaled = best_rf.predict(feature_set)
+#     next_pred = scaler_Y.inverse_transform(next_pred_scaled.reshape(-1, 1)).ravel()[0]
+
+#     # Store prediction
+#     future_predictions.append(next_pred)
+
+#     # Update 'Lag_1' with the predicted value to use for the next day
+#     last_known_features['Lag_1'] = next_pred
+
+# # =============================================================================
+# # Visualization: Actual vs Predicted vs Future Predictions
+# # =============================================================================
+# plt.figure(figsize=(14, 7))
+
+# # Plot actual test set prices (last 30 days for better visibility)
+# plt.plot(y_test_actual[-30:], label='Actual Price', marker='o', linestyle='solid')
+
+# # Plot predicted test set prices
+# plt.plot(y_pred_test[-30:], label='Predicted Price (Test Set)', linestyle='dashed', marker='x')
+
+# # Plot future 7-day recursive predictions
+# future_dates = pd.date_range(start=X_test.index[-1], periods=8, freq='B')[1:]  # Generate next 7 business days
+# plt.plot(future_dates, future_predictions, label='Predicted Future Prices (7 Days)', linestyle='dotted', marker='s', color='red')
+
+# plt.xlabel('Date')
+# plt.ylabel('Stock Price')
+# plt.title('Random Forest: Actual vs Predicted S&P 500 Prices with 7-Day Future Forecast')
+# plt.legend()
+# plt.grid(True)
+# plt.xticks(rotation=45)
+# plt.show()

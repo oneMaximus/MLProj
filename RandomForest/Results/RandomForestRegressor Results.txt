@@ -1,0 +1,189 @@
+RandomForest Regressor Results list
+
+Base Model (All Indicator) {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (All Indicators): 156297.4556
+Model R^2 (All Indicators): -1.0279
+=================================================================================================================
+
+Top 7 Features based on RandomForestRegressor Feature Importance
+
+Best Parameters (['Lag_1', 'WMA', 'EMA', 'SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku' ]): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['Lag_1', 'WMA', 'EMA', 'SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku' ]): 154022.1269
+Model R² (['Lag_1', 'WMA', 'EMA', 'SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku' ]): -0.9984
+
+Top 3 Features based on RandomForestRegressor Feature Importance
+
+Best Parameters (['Lag_1', 'WMA', 'EMA']): {'max_depth': 15, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['Lag_1', 'WMA', 'EMA']): 154129.5073
+Model R² (['Lag_1', 'WMA', 'EMA']): -0.9998
+
+=================================================================================================================
+
+Singular Indicators
+
+Using Only WMA (Best Indicator)
+
+Best Parameters (['WMA']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['WMA']): 154443.2316
+Model R² (['WMA']): -1.0039
+
+Using Only Lag_1
+
+Best Parameters (['Lag_1']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['Lag_1']): 154024.1850
+Model R² (['Lag_1']): -0.9985
+
+Using Only EMA
+
+Best Parameters (['EMA']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['EMA']): 154706.8819
+Model R² (['EMA']): -1.0073
+
+Using Only SMA
+
+Best Parameters (['SMA']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 800}
+Model MSE (['SMA']): 153929.7570
+Model R² (['SMA']): -0.9972
+
+Using Only MACD (Its horrifically bad)
+
+Best Parameters (['MACD']): {'max_depth': 5, 'min_samples_leaf': 10, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['MACD']): 1446450.5480
+Model R² (['MACD']): -17.7676
+
+Using Only Parabolic_SAR (Its really bad too)
+
+Best Parameters (['Parabolic_SAR']): {'max_depth': 5, 'min_samples_leaf': 30, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['Parabolic_SAR']): 1284309.2591
+Model R² (['Parabolic_SAR']): -15.6638
+
+Using Only Ichimoku 
+
+Best Parameters (['Ichimoku']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['Ichimoku']): 155446.6531
+Model R² (['Ichimoku']): -1.0169
+
+Using Only RSI (Bad)
+
+Best Parameters (['RSI']): {'max_depth': 5, 'min_samples_leaf': 30, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['RSI']): 1464978.4663
+Model R² (['RSI']): -18.0080
+
+Using Only Stochastic_Oscillator (Bad)
+
+Best Parameters (['Stochastic_Oscillator']): {'max_depth': 5, 'min_samples_leaf': 30, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['Stochastic_Oscillator']): 1424069.7038
+Model R² (['Stochastic_Oscillator']): -17.4772
+
+Using Only ROC 
+
+Best Parameters (['ROC']): {'max_depth': 5, 'min_samples_leaf': 30, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['ROC']): 1411417.4188
+Model R² (['ROC']): -17.3130
+
+Using Only MOM 
+
+Best Parameters (['MOM']): {'max_depth': 5, 'min_samples_leaf': 30, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['MOM']): 1411417.4188
+Model R² (['MOM']): -17.3130
+
+Using Only Williams_R 
+
+Best Parameters (['Williams_R']): {'max_depth': 5, 'min_samples_leaf': 30, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['Williams_R']): 1424069.7038
+Model R² (['Williams_R']): -17.4772
+
+Using Only Bollinger_Mavg 
+
+Best Parameters (['Bollinger_Mavg']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 800}
+Model MSE (['Bollinger_Mavg']): 154235.6711
+Model R² (['Bollinger_Mavg']): -1.0012
+
+Using Only ATR 
+
+Best Parameters (['ATR']): {'max_depth': 5, 'min_samples_leaf': 30, 'min_samples_split': 5, 'n_estimators': 800}
+Model MSE (['ATR']): 1603050.6580
+Model R² (['ATR']): -19.7995
+
+Using Only OBV 
+
+Best Parameters (['OBV']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['OBV']): 201010.9645
+Model R² (['OBV']): -1.6081
+
+Using Only Accum_Dist 
+
+Best Parameters (['Accum_Dist']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 20, 'n_estimators': 800}
+Model MSE (['Accum_Dist']): 162985.1253
+Model R² (['Accum_Dist']): -1.1147
+
+Using Only MFI 
+
+Best Parameters (['MFI']): {'max_depth': 5, 'min_samples_leaf': 30, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['MFI']): 1368193.7768
+Model R² (['MFI']): -16.7522
+
+Using Only VWAP 
+
+Best Parameters (['VWAP']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 800}
+Model MSE (['VWAP']): 153301.4681
+Model R² (['VWAP']): -0.9891
+
+=================================================================================================================
+
+==========Combinations==========
+
+Using ['RSI', 'SMA', 'EMA', 'WMA']
+
+Parameters (['RSI', 'SMA', 'EMA', 'WMA']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['RSI', 'SMA', 'EMA', 'WMA']): 155547.9148
+Model R² (['RSI', 'SMA', 'EMA', 'WMA']): -1.0182
+
+Using ['Lag_1', 'SMA', 'WMA', 'VWAP'] → Includes moving averages and volume.
+
+Parameters (['Lag_1', 'SMA', 'WMA', 'VWAP']): {'max_depth': 15, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['Lag_1', 'SMA', 'WMA', 'VWAP']): 154203.4811
+Model R² (['Lag_1', 'SMA', 'WMA', 'VWAP']): -1.0008
+
+Using ['Lag_1', 'EMA', 'Bollinger_Mavg', 'Ichimoku'] → Focuses on trend-following.
+
+Parameters (['Lag_1', 'EMA', 'Bollinger_Mavg', 'Ichimoku']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['Lag_1', 'EMA', 'Bollinger_Mavg', 'Ichimoku']): 154353.9252
+Model R² (['Lag_1', 'EMA', 'Bollinger_Mavg', 'Ichimoku']): -1.0027
+
+
+Using ['Lag_1', 'VWAP', 'OBV', 'Accum_Dist'] → Incorporates volume indicators.
+
+Parameters (['Lag_1', 'VWAP', 'OBV', 'Accum_Dist']): {'max_depth': 15, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['Lag_1', 'VWAP', 'OBV', 'Accum_Dist']): 153627.8881
+Model R² (['Lag_1', 'VWAP', 'OBV', 'Accum_Dist']): -0.9933
+
+Using ['Lag_1', 'WMA', 'VWAP', 'Bollinger_Mavg'] → Mixes volume-weighted trends.
+
+Parameters (['Lag_1', 'WMA', 'VWAP', 'Bollinger_Mavg']): {'max_depth': 15, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['Lag_1', 'WMA', 'VWAP', 'Bollinger_Mavg']): 154230.1464
+Model R² (['Lag_1', 'WMA', 'VWAP', 'Bollinger_Mavg']): -1.0011
+
+Using ['Lag_1', 'SMA', 'EMA', 'ROC'] → Includes momentum (ROC).
+
+Parameters (['Lag_1', 'SMA', 'EMA', 'ROC']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['Lag_1', 'SMA', 'EMA', 'ROC']): 154713.6400
+Model R² (['Lag_1', 'SMA', 'EMA', 'ROC']): -1.0074
+
+Using ['Lag_1', 'EMA', 'Williams_R', 'VWAP'] → Mixes momentum and price-based indicators.
+
+Parameters (['Lag_1', 'EMA', 'Williams_R', 'VWAP']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['Lag_1', 'EMA', 'Williams_R', 'VWAP']): 154469.0150
+Model R² (['Lag_1', 'EMA', 'Williams_R', 'VWAP']): -1.0042
+
+Using ['WMA', 'EMA', 'VWAP', 'Ichimoku'] → Pure technical indicator combination.
+
+Parameters (['WMA', 'EMA', 'VWAP', 'Ichimoku']): {'max_depth': 15, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['WMA', 'EMA', 'VWAP', 'Ichimoku']): 154739.8713
+Model R² (['WMA', 'EMA', 'VWAP', 'Ichimoku']): -1.0077
+
+Using ['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku'] → Mid-range indicators.
+
+Parameters (['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
+Model MSE (['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku']): 154432.8681
+Model R² (['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku']): -1.0038
