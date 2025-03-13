@@ -1,0 +1,103 @@
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import yfinance as yf
+import ta
+from sklearn.ensemble import RandomForestRegressor
+
+# =============================================================================
+# Load Dataset & Indicators (Same as Training Script)
+# =============================================================================
+data = yf.download('^GSPC', start='2018-01-01', end='2023-01-01')
+
+close_prices = data['Close'].squeeze()
+high_prices = data['High'].squeeze()
+low_prices = data['Low'].squeeze()
+volume = data['Volume'].squeeze()
+
+# Define all features
+price_trend_features = ['SMA', 'EMA', 'WMA', 'MACD', 'Parabolic_SAR', 'Ichimoku']
+momentum_features = ['RSI', 'Stochastic_Oscillator', 'ROC', 'MOM', 'Williams_R']
+volatility_features = ['Bollinger_Mavg', 'ATR']
+volume_features = ['OBV', 'Accum_Dist', 'MFI', 'VWAP']
+
+# Calculate Technical Indicators
+data['SMA'] = ta.trend.sma_indicator(close_prices, window=9)
+data['EMA'] = ta.trend.ema_indicator(close_prices, window=9)
+data['WMA'] = ta.trend.wma_indicator(close_prices, window=9)
+data['MACD'] = ta.trend.macd_diff(close_prices)
+data['Parabolic_SAR'] = ta.trend.psar_down_indicator(high_prices, low_prices, close_prices)
+data['Ichimoku'] = ta.trend.ichimoku_a(high_prices, low_prices)
+
+data['RSI'] = ta.momentum.rsi(close_prices, window=9)
+data['Stochastic_Oscillator'] = ta.momentum.stoch(high_prices, low_prices, close_prices)
+data['ROC'] = ta.momentum.roc(close_prices, window=9)
+data['MOM'] = ta.momentum.roc(close_prices, window=9)
+data['Williams_R'] = ta.momentum.williams_r(high_prices, low_prices, close_prices)
+
+data['Bollinger_Mavg'] = ta.volatility.bollinger_mavg(close_prices)
+data['ATR'] = ta.volatility.average_true_range(high_prices, low_prices, close_prices)
+
+data['OBV'] = ta.volume.on_balance_volume(close_prices, volume)
+data['Accum_Dist'] = ta.volume.acc_dist_index(high_prices, low_prices, close_prices, volume)
+data['MFI'] = ta.volume.money_flow_index(high_prices, low_prices, close_prices, volume, window=9)
+data['VWAP'] = ta.volume.volume_weighted_average_price(high_prices, low_prices, close_prices, volume, window=9)
+
+# Drop NaN values (due to indicator calculations)
+data.dropna(inplace=True)
+
+# Create Lag Features
+data['Lag_1'] = data['Close'].shift(1)
+data.dropna(inplace=True)
+
+# =============================================================================
+# Feature Importance Analysis
+# =============================================================================
+all_features = ['Lag_1'] + price_trend_features + momentum_features + volatility_features + volume_features
+X = data[all_features]
+y = data['Close']
+
+# Split data: 60% Train, 20% Validation, 20% Test
+total_size = len(data)
+train_size = int(total_size * 0.6)
+val_size = int(total_size * 0.2)
+
+X_train = X[:train_size]
+y_train = y[:train_size]
+X_val = X[train_size:train_size + val_size]
+y_val = y[train_size:train_size + val_size]
+X_test = X[train_size + val_size:]
+y_test = y[train_size + val_size:]
+
+# Scale features (X) and target (Y) for train, val, and test
+scaler_X = StandardScaler()
+scaler_Y = StandardScaler()
+
+# Fit scaler on training data only, transform all sets
+X_train_scaled = scaler_X.fit_transform(X_train)
+X_val_scaled = scaler_X.transform(X_val)
+X_test_scaled = scaler_X.transform(X_test)
+y_train_scaled = scaler_Y.fit_transform(y_train.values.reshape(-1, 1)).ravel()
+y_val_scaled = scaler_Y.transform(y_val.values.reshape(-1, 1)).ravel()
+y_test_scaled = scaler_Y.transform(y_test.values.reshape(-1, 1)).ravel()
+
+# Train a RandomForest to Determine Feature Importance
+temp_rf = RandomForestRegressor(
+    n_estimators=100,
+    random_state=42
+)
+temp_rf.fit(X_train_scaled, y_train_scaled)
+
+# Get Feature Importance
+feature_importance = pd.Series(temp_rf.feature_importances_, index=X.columns).sort_values(ascending=False)
+
+# Plot Feature Importance
+plt.figure(figsize=(12, 6))
+feature_importance.plot(kind='bar', color='royalblue')
+plt.title('Feature Importance in RandomForestRegressor')
+plt.xlabel('Features')
+plt.ylabel('Importance Score')
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.show()

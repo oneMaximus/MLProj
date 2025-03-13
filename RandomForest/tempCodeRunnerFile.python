@@ -1,4 +1,5 @@
 from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import yfinance as yf
 import ta
@@ -45,63 +46,3 @@ data['OBV'] = ta.volume.on_balance_volume(close_prices, volume)
 data['Accum_Dist'] = ta.volume.acc_dist_index(high_prices, low_prices, close_prices, volume)
 data['MFI'] = ta.volume.money_flow_index(high_prices, low_prices, close_prices, volume, window=9)
 data['VWAP'] = ta.volume.volume_weighted_average_price(high_prices, low_prices, close_prices, volume, window=9)
-
-# Drop NaN values (temporarily for features)
-data.dropna(inplace=True)
-
-# Create Lag Features
-data['Lag_1'] = data['Close'].shift(1)
-data.dropna(inplace=True)  # Drop rows with NaN values from lagging
-
-# Prepare feature matrix and target variable
-X = data[['Lag_1'] + price_trend_features + momentum_features + volatility_features + volume_features]
-y = data['Close']
-
-# Split data: Training data is all but the last 7 days
-train_data = data[:-7]  # All data except the last 7 days
-test_data = data[-7:]  # Last 7 days for prediction
-
-X_train = train_data[['Lag_1'] + price_trend_features + momentum_features + volatility_features + volume_features]
-y_train = train_data['Close']
-
-X_test = test_data[['Lag_1'] + price_trend_features + momentum_features + volatility_features + volume_features]
-y_test = test_data['Close']
-
-# Initialize and train HistGradientBoostingRegressor model
-model = HistGradientBoostingRegressor(max_iter=100, random_state=42)
-model.fit(X_train, y_train)
-
-# Recursive Forecasting for the last 7 days
-forecast = []
-
-# Start with the last known value from training set
-last_value = X_train.iloc[-1]['Lag_1']
-
-for i in range(len(X_test)):
-    # Prepare feature set for prediction
-    feature_set = X_test.iloc[i:i+1].copy()
-    feature_set['Lag_1'] = last_value  # Update the lag feature with the last predicted value
-
-    # Predict the next value
-    next_pred = model.predict(feature_set)[0]
-    forecast.append(next_pred)
-
-    # Use the predicted value as the input for the next day
-    last_value = next_pred
-
-# Plot results
-plt.figure(figsize=(12, 6))
-plt.plot(y_test.values, label='Actual Price')
-plt.plot(forecast, label='Predicted Price', linestyle='dashed')
-plt.xlabel('Date')
-plt.ylabel('Stock Price')
-plt.title('Recursive Forecasting of S&P 500 Prices (Last 7 Days)')
-plt.legend()
-plt.xticks(rotation=45)
-plt.grid(True)
-plt.tight_layout()
-plt.show()
-
-# Print evaluation metrics
-print(f"Mean Absolute Error: {mean_absolute_error(y_test, forecast):.2f}")
-print(f"Root Mean Squared Error: {np.sqrt(mean_squared_error(y_test, forecast)):.2f}")

@@ -1,0 +1,70 @@
+RandomForest Regressor Results list
+
+XGBoost Feature Importance Scores:
+
+Price                  Ticker
+EMA                              0.806458
+WMA                              0.128308
+Lag_1                            0.038892
+SMA                              0.010958
+Accum_Dist                       0.007774
+VWAP                             0.002276
+Bollinger_Mavg                   0.001975
+OBV                              0.001779
+Ichimoku                         0.000776
+Stochastic_Oscillator            0.000258
+RSI                              0.000200
+ROC                              0.000125
+ATR                              0.000105
+MACD                             0.000074
+Parabolic_SAR                    0.000028
+MFI                              0.000016
+MOM                              0.000000
+Williams_R                       0.000000
+
+==============================================================================================================================================================================================================================
+Base Model (All Indicator) : {'colsample_bytree': 0.8, 'gamma': 0, 'learning_rate': 0.15, 'max_depth': 8, 'min_child_weight': 3, 'n_estimators': 1000, 'reg_alpha': 0, 'reg_lambda': 0.5, 'subsample': 0.8}
+Model MSE (Best XGBoost): 149500.1060
+Model R² (Best XGBoost): -0.9398
+
+
+==============================================================================================================================================================================================================================
+Singular Indicator
+
+Using Lag_1
+
+Base Model (['Lag_1']) : {'colsample_bytree': 0.7, 'learning_rate': 0.05, 'max_depth': 6, 'min_child_weight': 5, 'n_estimators': 800, 'reg_lambda': 1.5, 'subsample': 0.7}
+Model MSE (['Lag_1']): 145997.6264
+Model R² (['Lag_1']): -0.8943
+
+Using EMA
+
+Base Model (['EMA']) : {'colsample_bytree': 0.7, 'learning_rate': 0.15, 'max_depth': 6, 'min_child_weight': 5, 'n_estimators': 800, 'reg_lambda': 0.5, 'subsample': 0.7}
+Model MSE (['EMA']): 150648.1313
+Model R² (['EMA']): -0.9546
+
+Using WMA
+
+Base Model (['WMA']) : {'colsample_bytree': 0.7, 'learning_rate': 0.15, 'max_depth': 6, 'min_child_weight': 5, 'n_estimators': 800, 'reg_lambda': 0.5, 'subsample': 0.7}
+Model MSE (['WMA']): 148848.6828
+Model R² (['WMA']): -0.9313
+
+===================Stopped===================
+Combinations
+
+Base Model (['Lag_1', 'EMA', 'WMA']) : {'colsample_bytree': 0.7, 'learning_rate': 0.05, 'max_depth': 6, 'min_child_weight': 1, 'n_estimators': 800, 'reg_lambda': 0.5, 'subsample': 0.9}
+Model MSE (['Lag_1', 'EMA', 'WMA']): 142045.2297
+Model R² (['Lag_1', 'EMA', 'WMA']): -0.8430
+
+(Honestly the best ive seen)
+Base Model (['Lag_1', 'EMA', 'WMA', 'SMA']) : {'colsample_bytree': 0.7, 'learning_rate': 0.05, 'max_depth': 6, 'min_child_weight': 1, 'n_estimators': 1000, 'reg_lambda': 1.0, 'subsample': 0.7}
+Model MSE (['Lag_1', 'EMA', 'WMA', 'SMA']): 130074.7726
+Model R² (['Lag_1', 'EMA', 'WMA', 'SMA']): -0.6877
+
+Base Model (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']) : {'colsample_bytree': 0.7, 'learning_rate': 0.1, 'max_depth': 7, 'min_child_weight': 3, 'n_estimators': 800, 'reg_lambda': 1.0, 'subsample': 0.8}
+Model MSE (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): 127211.6699
+Model R² (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): -0.6506
+
+Base Model (['Lag_1', 'EMA', 'WMA', 'Bollinger_Mavg', 'VWAP']) : {'colsample_bytree': 0.7, 'learning_rate': 0.15, 'max_depth': 7, 'min_child_weight': 1, 'n_estimators': 1000, 'reg_lambda': 2.0, 'subsample': 0.7}
+Model MSE (['Lag_1', 'EMA', 'WMA', 'Bollinger_Mavg', 'VWAP']): 127404.0149
+Model R² (['Lag_1', 'EMA', 'WMA', 'Bollinger_Mavg', 'VWAP']): -0.6531

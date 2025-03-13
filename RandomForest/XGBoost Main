@@ -1,0 +1,201 @@
+from xgboost import XGBRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import yfinance as yf
+import ta as ta
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
+# Fetch S&P 500 data and prepare it
+data = yf.download('^GSPC', start='2018-01-01', end='2023-01-01')
+
+close_prices = data['Close'].squeeze()
+high_prices = data['High'].squeeze()
+low_prices = data['Low'].squeeze()
+volume = data['Volume'].squeeze()
+
+# Define all features
+price_trend_features = ['SMA', 'EMA', 'WMA', 'MACD', 'Parabolic_SAR', 'Ichimoku']
+momentum_features = ['RSI', 'Stochastic_Oscillator', 'ROC', 'MOM', 'Williams_R']
+volatility_features = ['Bollinger_Mavg', 'ATR']
+volume_features = ['OBV', 'Accum_Dist', 'MFI', 'VWAP']
+
+# Calculate Price & Trend Indicators
+data['SMA'] = ta.trend.sma_indicator(close_prices, window=9)
+data['EMA'] = ta.trend.ema_indicator(close_prices, window=9)
+data['WMA'] = ta.trend.wma_indicator(close_prices, window=9)
+data['MACD'] = ta.trend.macd_diff(close_prices)
+data['Parabolic_SAR'] = ta.trend.psar_down_indicator(high_prices, low_prices, close_prices)
+data['Ichimoku'] = ta.trend.ichimoku_a(high_prices, low_prices)
+
+# Calculate Momentum Indicators
+data['RSI'] = ta.momentum.rsi(close_prices, window=9)
+data['Stochastic_Oscillator'] = ta.momentum.stoch(high_prices, low_prices, close_prices)
+data['ROC'] = ta.momentum.roc(close_prices, window=9)
+data['MOM'] = ta.momentum.roc(close_prices, window=9)
+data['Williams_R'] = ta.momentum.williams_r(high_prices, low_prices, close_prices)
+
+# Calculate Volatility Indicators
+data['Bollinger_Mavg'] = ta.volatility.bollinger_mavg(close_prices)
+data['ATR'] = ta.volatility.average_true_range(high_prices, low_prices, close_prices)
+
+# Calculate Volume Indicators
+data['OBV'] = ta.volume.on_balance_volume(close_prices, volume)
+data['Accum_Dist'] = ta.volume.acc_dist_index(high_prices, low_prices, close_prices, volume)
+data['MFI'] = ta.volume.money_flow_index(high_prices, low_prices, close_prices, volume, window=9)
+data['VWAP'] = ta.volume.volume_weighted_average_price(high_prices, low_prices, close_prices, volume, window=9)
+
+# Drop NaN values (due to indicator calculations)
+data.dropna(inplace=True)
+
+# Create Lag Features
+data['Lag_1'] = data['Close'].shift(1)
+data.dropna(inplace=True)  # Drop rows with NaN values from lagging
+
+# Prepare feature matrix and target variable based on found feature importance
+# X = data[['Lag_1'] + price_trend_features + momentum_features + volatility_features + volume_features]
+# X = data[['Lag_1']]
+# X = data[['EMA']]
+# X = data[['WMA']]
+# X = data[['Lag_1', 'EMA', 'WMA']]
+# X = data[['Lag_1', 'EMA', 'WMA', 'SMA']]
+# X = data[['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']]
+X = data[['Lag_1', 'EMA', 'WMA', 'OBV', 'Ichimoku']]
+y = data['Close']
+
+
+# Split data: 60% Train, 20% Validation, 20% Test
+total_size = len(data)
+train_size = int(total_size * 0.6)
+val_size = int(total_size * 0.2)
+
+X_train = X[:train_size]
+y_train = y[:train_size]
+X_val = X[train_size:train_size + val_size]
+y_val = y[train_size:train_size + val_size]
+X_test = X[train_size + val_size:]
+y_test = y[train_size + val_size:]
+
+# Scale features (X) and target (Y) for train, val, and test
+scaler_X = StandardScaler()
+scaler_Y = StandardScaler()
+
+# Fit scaler on training data only, transform all sets
+X_train_scaled = scaler_X.fit_transform(X_train)
+X_val_scaled = scaler_X.transform(X_val)
+X_test_scaled = scaler_X.transform(X_test)
+y_train_scaled = scaler_Y.fit_transform(y_train.values.reshape(-1, 1)).ravel()
+y_val_scaled = scaler_Y.transform(y_val.values.reshape(-1, 1)).ravel()
+y_test_scaled = scaler_Y.transform(y_test.values.reshape(-1, 1)).ravel()
+
+# Train XGBoost Model
+xgb_model = XGBRegressor(n_estimators=500, learning_rate=0.1, max_depth=5, random_state=42, objective='reg:squarederror', verbose=False)
+xgb_model.fit(X_train_scaled, y_train_scaled)
+
+# Predict on validation and test sets
+y_pred_val_scaled = xgb_model.predict(X_val_scaled)
+y_pred_val = scaler_Y.inverse_transform(y_pred_val_scaled.reshape(-1, 1)).ravel()
+
+# Evaluate initial model (on validation set)
+val_mse = mean_squared_error(y_val, y_pred_val)
+val_r2 = r2_score(y_val, y_pred_val)
+print(f"Initial Model MSE (Validation, XGBoost): {val_mse:.4f}")
+print(f"Initial Model R^2 (Validation, XGBoost): {val_r2:.4f}")
+
+# Predict for test set (initial model)
+y_pred_test_scaled = xgb_model.predict(X_test_scaled)
+y_pred_test = scaler_Y.inverse_transform(y_pred_test_scaled.reshape(-1, 1)).ravel()
+y_test_actual = y_test.values  # Actual test prices
+
+# Evaluate initial model (on test set)
+test_mse = mean_squared_error(y_test_actual, y_pred_test)
+test_r2 = r2_score(y_test_actual, y_pred_test)
+print(f"Initial Model MSE (Test, XGBoost): {test_mse:.4f}")
+print(f"Initial Model R^2 (Test, XGBoost): {test_r2:.4f}")
+
+# Hyperparameter tuning for XGBoost
+param_grid = {
+    'n_estimators': [800, 1000, 1200],  # Testing slightly fewer/more estimators
+    'max_depth': [6, 7, 8],  # Slightly varying depth
+    'learning_rate': [0.05, 0.1, 0.15],  # Testing smaller step sizes
+    'subsample': [0.7, 0.8, 0.9],  # Controlling sample size for each tree
+    'colsample_bytree': [0.7, 0.8, 0.9],  # Adjusting feature sampling
+    # deafult Reg_Alpha and Gamma
+    'reg_lambda': [0.5, 1.0, 1.5, 2.0],  # L2 regularization
+    'min_child_weight': [1, 3, 5],  # Minimum sum of instance weights in a leaf
+}
+
+# Perform Grid Search with Cross-Validation
+grid_search = GridSearchCV(
+    estimator=XGBRegressor(random_state=42),
+    param_grid=param_grid,
+    cv=5,
+    scoring='neg_mean_squared_error',
+    n_jobs=-1,
+    verbose=2
+)
+
+# Fit the grid search model on training + validation data
+grid_search.fit(X_train_scaled, y_train_scaled)
+
+# Extract best parameters
+best_params = grid_search.best_params_
+print(f"Best Hyperparameters : {best_params}")
+
+# Train a new XGBoost with the best hyperparameters
+best_xgb = XGBRegressor(**best_params, random_state=42,objective='reg:squarederror', verbose=False) 
+best_xgb.fit(X_train_scaled, y_train_scaled)
+
+# Predict on test set
+y_pred_test_scaled = best_xgb.predict(X_test_scaled)
+y_pred_test = scaler_Y.inverse_transform(y_pred_test_scaled.reshape(-1, 1)).ravel()
+
+# Evaluate model on test set
+test_mse = mean_squared_error(y_test_actual, y_pred_test)
+test_r2 = r2_score(y_test_actual, y_pred_test)
+
+# Print Preperation
+indicator_list = [col[0] if isinstance(col, tuple) else col for col in X.columns]
+
+print(f"Model MSE ({indicator_list}): {test_mse:.4f}")
+print(f"Model R² ({indicator_list}): {test_r2:.4f}")
+
+# =============================================================================
+# Visualization: Technical Indicators & Actual vs. Predicted Prices
+# =============================================================================
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
+
+# Plot 1: Technical Indicators (normalized for visualization) for test period
+test_indicators = X_test.copy()
+scaler_vis = StandardScaler()  # Normalize for visualization
+normalized_indicators = scaler_vis.fit_transform(test_indicators)
+
+for i, indicator in enumerate(X_test.columns):
+    ax1.plot(X_test.index, normalized_indicators[:, i], label=indicator, alpha=0.5, linewidth=0.5)
+ax1.set_title('Normalized Technical Indicators (Test Period)')
+ax1.set_ylabel('Normalized Value (Standardized)')
+ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+ax1.grid(True)
+
+# Plot 2: Actual vs. Predicted Prices (test period only) with Confidence Intervals
+ax2.plot(X_test.index, y_test_actual, label='Actual S&P 500 Closing Price (Test)', color='blue')
+ax2.plot(X_test.index, y_pred_test, label='Predicted S&P 500 Closing Price (Test, RFR)', color='red', linestyle='--')
+
+# Calculate prediction standard deviation for an error margin
+error_margin = np.std(y_test_actual - y_pred_test)
+
+# Add error boundaries as a shaded region (± 1 standard deviation)
+ax2.fill_between(X_test.index, y_pred_test - error_margin, y_pred_test + error_margin, color='black', alpha=0.2, label=f'Error Margin (±{error_margin:.2f})')
+
+ax2.set_xlabel('Date')
+ax2.set_ylabel('S&P 500 Closing Price')
+ax2.set_title('Random Forest: Actual vs Predicted S&P 500 Closing Prices with Error Margin')
+ax2.legend()
+ax2.grid(True)
+ax2.tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()
