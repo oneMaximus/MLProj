@@ -148,11 +148,11 @@ test_r2 = r2_score(y_test_actual, y_pred_test)
 print(f"Test MSE (Test, All Indicators): {test_mse:.4f}")
 print(f"Test R^2 (Test, All Indicators): {test_r2:.4f}")
 
-# Predict today's closing price (March 5, 2025) using the last row (March 4, 2025)
+# Predict today's closing price using the last row
 last_date = sp500_data.index[-1]  # Last date in data (e.g., March 4, 2025)
 print(f"Last date in data: {last_date}")
 
-# Get today's date (March 5, 2025)
+# Get today's date 
 today = pd.Timestamp.now().strftime('%Y-%m-%d')
 
 # Use the last row of data to predict today's closing price
