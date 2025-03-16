@@ -9,7 +9,7 @@ from sklearn.ensemble import RandomForestRegressor
 # =============================================================================
 # Load Dataset & Indicators (Same as Training Script)
 # =============================================================================
-data = yf.download('^GSPC', start='2018-01-01', end='2023-01-01')
+data = yf.download('^GSPC', start='2023-01-01', end='2025-01-06')
 
 close_prices = data['Close'].squeeze()
 high_prices = data['High'].squeeze()
@@ -101,3 +101,7 @@ plt.ylabel('Importance Score')
 plt.xticks(rotation=45)
 plt.grid(True)
 plt.show()
+
+# Print Feature Importance Scores
+print("\nRandomForest Feature Importance Scores:\n")
+print(feature_importance)

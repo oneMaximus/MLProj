@@ -1,0 +1,191 @@
+Logistic Regression Findings,
+
+BASELINE RESULTS
+
+
+Combined ALL Indicators (WITHOUT SCALING BEFORE TRAINING),
+-----------------------------------------------------------------------------------------------------------------
+SPLIT CONFIGURATION: 80% Training, 20% Testing
+
+MODEL ACCURACY: 0.4959349593495935
+              precision    recall  f1-score   support
+
+           0       0.42      0.27      0.33       112
+           1       0.53      0.69      0.60       134
+
+    accuracy                           0.50       246
+   macro avg       0.47      0.48      0.46       246
+weighted avg       0.48      0.50      0.47       246
+
+FEATURE IMPORTANCE RANKING:
+              Feature       Importance
+                  OBV       4.015822e-12 (1.000)
+           Accum_Dist       3.477436e-12 (0.866)
+                 VWAP       4.096056e-19 (0.000)
+                  SMA       4.093925e-19 (0.000)
+             Ichimoku       4.088352e-19 (0.000)
+       Bollinger_Mavg       4.084162e-19 (0.000)
+                  WMA       4.081051e-19 (0.000)
+                  EMA       4.078528e-19 (0.000)
+Stochastic_Oscillator       1.216615e-20 (0.000)
+                  RSI       1.011239e-20 (0.000)
+                  MFI       1.011103e-20 (0.000)
+           Williams_R       5.759138e-21 (0.000)
+                  ATR       4.109798e-21 (0.000)
+                 MACD       7.578723e-22 (0.000)
+                  MOM       2.055845e-22 (0.000)
+                  ROC       2.055845e-22 (0.000)
+        Parabolic_SAR       1.961671e-23 (0.000)
+
+
+Combined ALL Indicators (WITH SCALING BEFORE TRAINING),
+-----------------------------------------------------------------------------------------------------------------
+SPLIT CONFIGURATION: 80% Training, 20% Testing
+
+MODEL ACCURACY: 0.5203252032520326  
+              precision    recall  f1-score   support
+
+           0       0.46      0.28      0.34       112
+           1       0.54      0.72      0.62       134
+
+    accuracy                           0.52       246
+   macro avg       0.50      0.50      0.48       246
+weighted avg       0.50      0.52      0.50       246
+
+
+FEATURE IMPORTANCE RANKING:                                             FEATURE IMPORTANCE RANKING (WITH NORMALIZATION):
+              Feature       Importance                                                Feature       Importance
+                  OBV       0.603551                                                      OBV       1.000000
+                  WMA       0.331080                                                      WMA       0.531067
+                  EMA       0.309474                                                      EMA       0.493882
+             Ichimoku       0.294433                                                 Ichimoku       0.467997
+           Accum_Dist       0.285628                                               Accum_Dist       0.452843
+                 MACD       0.152410                                                     MACD       0.205334
+                  RSI       0.141814                                                      RSI       0.152142
+                  ATR       0.110907                                                      ATR       0.152142
+       Bollinger_Mavg       0.103926                                           Bollinger_Mavg       0.140128
+                  ROC       0.080759                                                      ROC       0.100255
+                  MOM       0.080759                                                      MOM       0.100255
+                  SMA       0.040668                                                      SMA       0.031257
+           Williams_R       0.036553                                               Williams_R       0.024176
+Stochastic_Oscillator       0.036553                                    Stochastic_Oscillator       0.024176
+        Parabolic_SAR       0.031051                                            Parabolic_SAR       0.014707
+                 VWAP       0.029469                                                     VWAP       0.011984
+                  MFI       0.022506                                                      MFI       0.000000
+
+
+Combined ALL Indicators (WITH SCALING BEFORE TRAINING + RECURSIVE FEATURE ELIMINATION),
+-----------------------------------------------------------------------------------------------------------------
+SPLIT CONFIGURATION: 80% Training, 20% Testing
+
+RECURSIVE FEATURE ELIMINATION (RFE):
+- Rank features and Select only the Top Features
+- Remove Weak Predictors
+
+CORRELATION FILTERING:
+- Remove Correlation greater than 0.9, reducing Multicollinearity (Two or more Features that are highly Correlated with Each Other)
+- Prevent Redundant Features from affecting the Model
+
+FEATURES SELECTED TOP 5(FEATURES KEPT):
+- OBV
+- EMA
+- Ichimoku
+- Accum_Dist
+- Bollinger_Mavg
+
+ACCURACY WITH FEATURES SELECTED: 0.4878048780487805
+
+Price
+Target                   1.000000
+Parabolic_SAR            0.024372
+ROC                      0.007050
+MOM                      0.007050
+MFI                      0.002126
+Williams_R              -0.002700
+Stochastic_Oscillator   -0.002700
+RSI                     -0.006213
+MACD                    -0.018493
+OBV                     -0.045390
+ATR                     -0.050926
+VWAP                    -0.054040
+SMA                     -0.054260
+WMA                     -0.054909
+Ichimoku                -0.055289
+EMA                     -0.055398
+Bollinger_Mavg          -0.055754
+Accum_Dist              -0.060091
+
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+FEATURES SELECTED TOP 7(FEATURES KEPT):
+- OBV
+- EMA
+- Ichimoku
+- Accum_Dist
+- MACD
+- Bollinger_Mavg
+- MOM
+
+ACCURACY WITH FEATURES SELECTED: 0.491869918699187
+
+Price
+Target                   1.000000
+Parabolic_SAR            0.024372
+ROC                      0.007050
+MOM                      0.007050
+MFI                      0.002126
+Williams_R              -0.002700
+Stochastic_Oscillator   -0.002700
+RSI                     -0.006213
+MACD                    -0.018493
+OBV                     -0.045390
+ATR                     -0.050926
+VWAP                    -0.054040
+SMA                     -0.054260
+WMA                     -0.054909
+Ichimoku                -0.055289
+EMA                     -0.055398
+Bollinger_Mavg          -0.055754
+Accum_Dist              -0.060091
+
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+FEATURES SELECTED TOP 12(FEATURES KEPT):
+- OBV
+- WMA
+- EMA
+- Ichimoku
+- Accum_Dist
+- MACD
+- RSI
+- ATR
+- Bollinger_Mavg
+- ROC
+- MOM
+- Williams_R
+
+ACCURACY WITH FEATURES SELECTED: 0.5203252032520326
+
+Price
+Target                   1.000000
+Parabolic_SAR            0.024372
+ROC                      0.007050
+MOM                      0.007050
+MFI                      0.002126
+Williams_R              -0.002700
+Stochastic_Oscillator   -0.002700
+RSI                     -0.006213
+MACD                    -0.018493
+OBV                     -0.045390
+ATR                     -0.050926
+VWAP                    -0.054040
+SMA                     -0.054260
+WMA                     -0.054909
+Ichimoku                -0.055289
+EMA                     -0.055398
+Bollinger_Mavg          -0.055754
+Accum_Dist              -0.060091

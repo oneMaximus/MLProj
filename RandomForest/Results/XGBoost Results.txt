@@ -1,8 +1,7 @@
-RandomForest Regressor Results list
+XGBoost Results list
 
 XGBoost Feature Importance Scores:
 
-Price                  Ticker
 EMA                              0.806458
 WMA                              0.128308
 Lag_1                            0.038892
@@ -51,6 +50,11 @@ Model R² (['WMA']): -0.9313
 
 ===================Stopped===================
 Combinations
+
+Base Model (['Lag_1', 'EMA', 'WMA']) : {'gamma': 0.1, 'learning_rate': 0.05, 'max_depth': 8, 'n_estimators': 400, 'reg_lambda': 1.5}
+
+Model MSE (['Lag_1', 'EMA', 'WMA', 'OBV', 'Ichimoku']): 138730.1185
+Model R² (['Lag_1', 'EMA', 'WMA', 'OBV', 'Ichimoku']): -0.8000
 
 Base Model (['Lag_1', 'EMA', 'WMA']) : {'colsample_bytree': 0.7, 'learning_rate': 0.05, 'max_depth': 6, 'min_child_weight': 1, 'n_estimators': 800, 'reg_lambda': 0.5, 'subsample': 0.9}
 Model MSE (['Lag_1', 'EMA', 'WMA']): 142045.2297
