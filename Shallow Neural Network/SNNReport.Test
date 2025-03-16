@@ -1,11 +1,18 @@
 Shallow Neural Network Evaluation Results
 
-BASELINE Evaluation 
+BASELINE Evaluation
 
-Model Parameters:
+####################################################################################
+Variation in TrainTestVal Split <<
+####################################################################################
+
+####################################################################################
+Description:
+1. Baseline Model Architecture
+
 StockPredictionNN(
   (layers): Sequential(
-    (0): Linear(in_features=7, out_features=128, bias=True)
+    (0): Linear(in_features=18, out_features=128, bias=True)
     (1): ReLU()
     (2): Linear(in_features=128, out_features=64, bias=True)
     (3): ReLU()
@@ -13,9 +20,38 @@ StockPredictionNN(
   )
 )
 
-Combined All Indicators (all 18 Indicators)
------------------------------------------------------------------------------------------------------------------
-70% Train 15& Val 15% Test Split (Actual Prices, All Indicators)
+2. Model will be using all technical indicators (combined indicators) as feature inputs
+
+3. Model Hyperparameters
+
+input_size = 18 - "len(features)"  
+hidden_size1 = 128 
+hidden_size2 = 64  
+output_size = 1  
+batch_size = 16
+learning_rate = 0.001
+num_epochs = 100
+####################################################################################
+
+Results:
+------------------------------------------------------------------------------------
+70% Train 20% Val 10% Test Split 
+
+Mean Squared Error (MSE): 24207.365234
+Root Mean Squared Error (RMSE): 155.587163
+Mean Absolute Error (MAE): 126.429535
+R² Score: 0.166109
+Mean Absolute Percentage Error (MAPE): 3.28%
+
+Feedback: 
+- Training loss: Remains relatively low and stable.
+- Validation loss: Fluctuates significantly which may indicate potential overfitting or instability in generalisation/learning.
+
+- RMSE & MAE: Predictions have high error margins.
+- R² Score: The model does not explain much variance in the target variable, meaning it has poor predictive power.
+- MAPE: The relative percentage error is low, suggesting that while the absolute errors are large, the overall relative deviation from actual values is somewhat controlled.
+------------------------------------------------------------------------------------
+70% Train 15% Val 15% Test Split 
 
 Mean Squared Error (MSE): 20309.773438
 Root Mean Squared Error (RMSE): 142.512362
@@ -23,14 +59,36 @@ Mean Absolute Error (MAE): 121.001495
 R² Score: 0.503499
 Mean Absolute Percentage Error (MAPE): 3.09%
 
+Feedback: 
+- Training Loss: Decreases over epochs and stabilizes at a low value.
+- Validation Loss: Shows high fluctuation with noticeable spikes, suggesting potential overfitting.
+
+- RMSE & MAE: relatively high, indicating the model has a considerable amount of error.
+- R² Score: A score of 0.50 suggests that the model explains only 50.35% of the variance, meaning it has weak predictive power.
+- MAPE: Suggests the model’s predictions are relatively close in proportion.
+------------------------------------------------------------------------------------
+60% Train 20% Val 20% Test Split 
+
+Mean Squared Error (MSE): 8098.223633
+Root Mean Squared Error (RMSE): 89.990131
+Mean Absolute Error (MAE): 73.205750
+R² Score: 0.894926
+Mean Absolute Percentage Error (MAPE): 1.79%
+
+Personal Feedback: 
 ------------------------------------------------------------------------------------
 
-BASELINE Evaluation 
+####################################################################################
+Variation in Technical Indicators <<
+####################################################################################
 
-Model Parameters:
+####################################################################################
+Description:
+1. Baseline Model Architecture
+
 StockPredictionNN(
   (layers): Sequential(
-    (0): Linear(in_features=7, out_features=128, bias=True)
+    (0): Linear(in_features=len(features), out_features=128, bias=True)
     (1): ReLU()
     (2): Linear(in_features=128, out_features=64, bias=True)
     (3): ReLU()
@@ -38,53 +96,140 @@ StockPredictionNN(
   )
 )
 
-Price and Trend Indicators (6 Indicators)
------------------------------------------------------------------------------------------------------------------
-70% Train 15& Val 15% Test Split (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen)
+2. Model will be using technical indicators which are split into 3 main categories, namely:
+- Price & Trend Indicators
+- Momentum Indicators
+- Volatility, Volume & Market Breadth Indicators
 
-Mean Squared Error (MSE): 53198.929688
-Root Mean Squared Error (RMSE): 230.648932
-Mean Absolute Error (MAE): 214.302551
-R² Score: -0.300524
-Mean Absolute Percentage Error (MAPE): 5.49%
+3. Model Hyperparameters
 
+input_size = len(features) 
+hidden_size1 = 128 
+hidden_size2 = 64  
+output_size = 1  
+batch_size = 16
+learning_rate = 0.001
+num_epochs = 100
+
+4. Model will be using 60% Training, 20% Validation, 20% Testing
+####################################################################################
+
+Results:
+------------------------------------------------------------------------------------
+Price & Trend Indicators (6 Indicators)
+
+Mean Squared Error (MSE): 30667.044922
+Root Mean Squared Error (RMSE): 175.120087
+Mean Absolute Error (MAE): 153.404785
+R² Score: 0.602097
+Mean Absolute Percentage Error (MAPE): 3.78%
+------------------------------------------------------------------------------------
+Momentum Indicators (5 Indicators)
+
+Mean Squared Error (MSE): 1633111.000000
+Root Mean Squared Error (RMSE): 1277.932314
+Mean Absolute Error (MAE): 1149.003540
+R² Score: -20.189501
+Mean Absolute Percentage Error (MAPE): 29.01%
+------------------------------------------------------------------------------------
+Volatility & Volume & Market Breadth Indicators (6 Indicators)
+
+Mean Squared Error (MSE): 34374.597656
+Root Mean Squared Error (RMSE): 185.403877
+Mean Absolute Error (MAE): 159.066010
+R² Score: 0.553992
+Mean Absolute Percentage Error (MAPE): 3.97%
 ------------------------------------------------------------------------------------
 
-Optimised Evaluation 
+####################################################################################
+Baseline Model - Hyperparameter Tuning <<
+####################################################################################
 
-Model Parameters:
+####################################################################################
+Description:
+1. Hyperparameter Tuning done on Baseline Shallow Neural Network by using Bayesian Optimisation with Optuna 
+2. Hyperparameters that will be tuned:
+   
+    # Tune hyperparameters
+    hidden_size1 [32, 64, 128, 256]
+    hidden_size2 = [32, 64, 128]
+    learning_rate = [1e-4, 1e-2]
+    dropout_rate = [0.0, 0.5]
+    batch_size = [16, 32, 64]
+    activation_fn = ["relu", "tanh", "leaky_relu"]
+
+3. Models will be using all technical indicators (combined indicators) as feature inputs
+4. Model will be using a 60% 
+5. K-fold Cross Validation will be performed on both Baseline Model & Optimised Model to compare the results
+& performance 
+####################################################################################
+
+Results:
+------------------------------------------------------------------------------------
+Baseline Evaluation 
+
+Baseline Model Architecture
+
 StockPredictionNN(
   (layers): Sequential(
-    (0): Linear(in_features=18, out_features=256, bias=True)
+    (0): Linear(in_features=18, out_features=128, bias=True)
     (1): ReLU()
-    (2): Dropout(p=0.3, inplace=False)
-    (3): Linear(in_features=256, out_features=128, bias=True)
-    (4): ReLU()
-    (5): Dropout(p=0.3, inplace=False)
-    (6): Linear(in_features=128, out_features=1, bias=True)
+    (2): Linear(in_features=128, out_features=64, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=64, out_features=1, bias=True)
   )
 )
-Combined All Indicators (all 18 Indicators)
------------------------------------------------------------------------------------------------------------------
-70% Train 15& Val 15% Test Split (Actual Prices, All Indicators)
 
-Mean Squared Error (MSE): 4721.340332
-Root Mean Squared Error (RMSE): 68.712010
-Mean Absolute Error (MAE): 54.255882
-R² Score: 0.884580
-Mean Absolute Percentage Error (MAPE): 1.37%
+Hyperparameters:
+batch_size = 16
+learning_rate = 0.001
+num_epochs = 100
 
+(K-Fold Cross Validation)
+
+Cross-Validation Results:
+Average MSE: 22983.5450
+Average RMSE: 133.6984
+Average MAE: 100.3643
+Average R2 Score: 0.6146
+Average MAPE: 2.89%
+------------------------------------------------------------------------------------
+Optimised Evaluation
+
+Optimised Model Architecture
+
+StockPredictionNN(
+  (layers): Sequential(
+    (0): Linear(in_features=18, out_features=128, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=128, out_features=32, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=32, out_features=1, bias=True)
+  )
+)
+
+Best Hyperparameters:
+batch_size = 32
+dropout_rate = 0.2783082412106063
+learning_rate = 0.002081896423415752
+activation = relu
+num_epochs = 100
+
+Evaluation of Model with Optimised Hyperparameters:
+Mean Squared Error (MSE): 5278.597168
+Root Mean Squared Error (RMSE): 72.653955
+Mean Absolute Error (MAE): 58.062939
+R² Score: 0.931511
+Mean Absolute Percentage Error (MAPE): 1.44%
+
+(K-Fold Cross Validation)
+
+Cross-Validation Results:
+Average MSE: 7156.1403
+Average RMSE: 79.4217
+Average MAE: 59.0320
+Average R2 Score: 0.8590
+Average MAPE: 1.70%
 ------------------------------------------------------------------------------------
 
-#### DELETE ME 
-Price and Trend Indicators (6 Indicators)
------------------------------------------------------------------------------------------------------------------
-80% Train 20% Test Split (Actual Prices, Time + SMA + EMA + WMA + MACD + Parabolic_SAR + Ichimoku_Tenkan_sen)
-
-Mean Squared Error (MSE): 3672.784180
-Root Mean Squared Error (RMSE): 60.603500
-Mean Absolute Error (MAE): 48.681187
-R² Score: 0.953048
-Mean Absolute Percentage Error (MAPE): 1.20%
-
------------------------------------------------------------------------------------------------------------------
+Research Summary:
