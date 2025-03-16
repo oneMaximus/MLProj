@@ -3,7 +3,9 @@ Linear Regression Findings Report
 -----------------------------------------------------------------------------------------------------------------
 Combined All Indicators (All 18 Indicators)
 -----------------------------------------------------------------------------------------------------------------
+
 80% Train 20% Test Split (Actual Prices, All Indicators)
+-----------------------------------------------------------------------------------------------------------------
 Mean Squared Error (MSE): 5296.6125
 Root Mean Squared Error (RMSE): 72.777830
 Mean Absolute Error (MAE): 59.978352
@@ -24,7 +26,33 @@ Feature Importance (Higher = More Impactful):
 9             ATR    1.254479
 
 -----------------------------------------------------------------------------------------------------------------
-Top 5 Indicators:
+60% Train, 20% Validation, 20% Test (Actual Prices, All Indicators)
+-----------------------------------------------------------------------------------------------------------------
+Mean Squared Error (MSE): 10291.1269
+Root Mean Squared Error (RMSE): 101.445192
+Mean Absolute Error (MAE): 83.474035
+R² Score: 0.866473
+Mean Absolute Percentage Error (MAPE): 2.02%
+
+Feature Importance (Higher = More Impactful):
+          Feature  Importance
+0             EMA  329.828204
+1  Bollinger_Mavg   70.272824
+2             SMA   70.272824
+3            VWAP   65.361185
+4             OBV   43.551442
+5             ROC   35.489490
+6             ATR   15.341071
+7             RSI   12.505646
+8             MFI    2.111421
+9            Time    1.172269
+
+----------------------------------------------------------------------------------------------------------------
+Top 5 Indicators
+-----------------------------------------------------------------------------------------------------------------
+
+80% Train 20% Test Split 
+-----------------------------------------------------------------------------------------------------------------
 Mean Squared Error (MSE): 5739.8516
 Root Mean Squared Error (RMSE): 75.761809
 Mean Absolute Error (MAE): 62.305542
@@ -38,3 +66,20 @@ Feature Importance (Higher = More Impactful):
 2             SMA   224.451003
 3            VWAP    57.455933
 4             ROC    37.662280
+
+-----------------------------------------------------------------------------------------------------------------
+60% Train, 20% Validation, 20% Test
+-----------------------------------------------------------------------------------------------------------------
+Mean Squared Error (MSE): 5814.5217
+Root Mean Squared Error (RMSE): 76.253011
+Mean Absolute Error (MAE): 62.742433
+R² Score: 0.928725
+Mean Absolute Percentage Error (MAPE): 1.55%
+
+Feature Importance (Higher = More Impactful):
+          Feature  Importance
+0             EMA  429.421372
+1             SMA   95.137378
+2  Bollinger_Mavg   95.137378
+3            VWAP   44.472903
+4             ROC   43.320362

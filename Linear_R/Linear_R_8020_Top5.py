@@ -10,6 +10,7 @@ from ta.volume import on_balance_volume, money_flow_index, volume_weighted_avera
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error, r2_score
 
 # Function to fetch data
