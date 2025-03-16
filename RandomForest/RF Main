@@ -1,5 +1,6 @@
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import learning_curve
 import yfinance as yf
 import ta as ta
 import pandas as pd
@@ -10,7 +11,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 # Fetch S&P 500 data and prepare it
-data = yf.download('^GSPC', start='2018-01-01', end='2023-01-01')
+data = yf.download('^GSPC', start='2018-01-01', end='2023-01-09')
 
 close_prices = data['Close'].squeeze()
 high_prices = data['High'].squeeze()
@@ -57,9 +58,7 @@ data.dropna(inplace=True)  # Drop rows with NaN values from lagging
 
 # Prepare feature matrix and target variable based on found feature importance
 # X = data[['Lag_1'] + price_trend_features + momentum_features + volatility_features + volume_features]
-
-# X = data[['Lag_1', 'WMA', 'EMA', 'SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku' ]]
-X = data[['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku']]
+X = data[['Lag_1', 'WMA', 'EMA', 'OBV', 'Ichimoku' ]]
 
 y = data['Close']
 
@@ -88,7 +87,7 @@ y_val_scaled = scaler_Y.transform(y_val.values.reshape(-1, 1)).ravel()
 y_test_scaled = scaler_Y.transform(y_test.values.reshape(-1, 1)).ravel()
 
 # Train RandomForestRegressor on full training data
-modelRF = RandomForestRegressor(n_estimators=300, random_state=42, max_depth=10)
+modelRF = RandomForestRegressor(n_estimators=300, random_state=42)
 modelRF.fit(X_train_scaled, y_train_scaled)
 
 # Predict on validation and test sets
@@ -118,7 +117,7 @@ y_train_val_scaled = np.concatenate((y_train_scaled, y_val_scaled))
 
 # Expanded hyperparameter tuning using scaled train and validation data
 param_grid = {
-    'n_estimators': [500, 800, 1000, 1200],
+    'n_estimators': [50, 100, 500, 800, 1000, 1200],
     'max_depth': [5, 10, 15, 20],
     'min_samples_split': [5, 10, 15, 20],
     'min_samples_leaf': [5, 10, 20, 30]
@@ -207,46 +206,24 @@ ax2.tick_params(axis='x', rotation=45)
 plt.tight_layout()
 plt.show()
 
+# =============================================================================
+# Plot Learning Curve
+# =============================================================================
+train_sizes, train_scores, val_scores = learning_curve(
+    best_rf, X_train_scaled, y_train_scaled, cv=5, scoring='neg_mean_squared_error', 
+    train_sizes=np.linspace(0.1, 1.0, 10), n_jobs=-1)
 
-# # =============================================================================
-# # Recursive Forecasting for Next 7 Days
-# # =============================================================================
-# future_predictions = []  # Stores predicted stock prices for next 7 days
-# last_known_features = X_test.iloc[-1].copy()  # Start with the last available data
+# Convert to positive MSE
+train_scores_mean = -train_scores.mean(axis=1)
+val_scores_mean = -val_scores.mean(axis=1)
 
-# for i in range(7):  # Predicting for the next 7 days
-#     # Convert feature set to DataFrame for model prediction
-#     feature_set = pd.DataFrame([last_known_features], columns=X_train.columns)
-    
-#     # Predict next day's stock price
-#     next_pred_scaled = best_rf.predict(feature_set)
-#     next_pred = scaler_Y.inverse_transform(next_pred_scaled.reshape(-1, 1)).ravel()[0]
+plt.figure(figsize=(10, 6))
+plt.plot(train_sizes, train_scores_mean, 'o-', color='blue', label='Training MSE')
+plt.plot(train_sizes, val_scores_mean, 'o-', color='red', label='Validation MSE')
 
-#     # Store prediction
-#     future_predictions.append(next_pred)
-
-#     # Update 'Lag_1' with the predicted value to use for the next day
-#     last_known_features['Lag_1'] = next_pred
-
-# # =============================================================================
-# # Visualization: Actual vs Predicted vs Future Predictions
-# # =============================================================================
-# plt.figure(figsize=(14, 7))
-
-# # Plot actual test set prices (last 30 days for better visibility)
-# plt.plot(y_test_actual[-30:], label='Actual Price', marker='o', linestyle='solid')
-
-# # Plot predicted test set prices
-# plt.plot(y_pred_test[-30:], label='Predicted Price (Test Set)', linestyle='dashed', marker='x')
-
-# # Plot future 7-day recursive predictions
-# future_dates = pd.date_range(start=X_test.index[-1], periods=8, freq='B')[1:]  # Generate next 7 business days
-# plt.plot(future_dates, future_predictions, label='Predicted Future Prices (7 Days)', linestyle='dotted', marker='s', color='red')
-
-# plt.xlabel('Date')
-# plt.ylabel('Stock Price')
-# plt.title('Random Forest: Actual vs Predicted S&P 500 Prices with 7-Day Future Forecast')
-# plt.legend()
-# plt.grid(True)
-# plt.xticks(rotation=45)
-# plt.show()
+plt.xlabel('Training Set Size')
+plt.ylabel('Mean Squared Error (MSE)')
+plt.title('Learning Curve for Random Forest')
+plt.legend()
+plt.grid(True)
+plt.show()

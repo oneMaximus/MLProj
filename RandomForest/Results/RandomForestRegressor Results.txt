@@ -1,3 +1,24 @@
+RandomForest Feature Importance Scores:
+
+Lag_1                            0.219130
+Accum_Dist                       0.136870
+VWAP                             0.128469
+OBV                              0.122719
+WMA                              0.109396
+SMA                              0.086740
+EMA                              0.074613
+Ichimoku                         0.068309
+Bollinger_Mavg                   0.050856
+RSI                              0.000755
+MFI                              0.000586
+ATR                              0.000331
+Williams_R                       0.000327
+MACD                             0.000286
+Stochastic_Oscillator            0.000271
+MOM                              0.000171
+ROC                              0.000138
+Parabolic_SAR                    0.000032
+
 RandomForest Regressor Results list
 
 Base Model (All Indicator) {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
@@ -187,3 +208,9 @@ Using ['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku'] → Mid-range indicators.
 Parameters (['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku']): {'max_depth': 10, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 500}
 Model MSE (['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku']): 154432.8681
 Model R² (['SMA', 'VWAP', 'Bollinger_Mavg', 'Ichimoku']): -1.0038
+
+Best Model Tested
+
+Parameters (['Lag_1', 'WMA', 'EMA', 'OBV', 'Ichimoku']): {'max_depth': 15, 'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 1200}
+Model MSE (['Lag_1', 'WMA', 'EMA', 'OBV', 'Ichimoku']): 139147.9406
+Model R² (['Lag_1', 'WMA', 'EMA', 'OBV', 'Ichimoku']): -0.8798
