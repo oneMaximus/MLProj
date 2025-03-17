@@ -40,42 +40,64 @@ Results:
 Mean Squared Error (MSE): 24207.365234
 Root Mean Squared Error (RMSE): 155.587163
 Mean Absolute Error (MAE): 126.429535
-R² Score: 0.166109
+R² Score: 0.166109 (poor fit)
 Mean Absolute Percentage Error (MAPE): 3.28%
 
 Feedback: 
-- Training loss: Remains relatively low and stable.
-- Validation loss: Fluctuates significantly which may indicate potential overfitting or instability in generalisation/learning.
-
-- RMSE & MAE: Predictions have high error margins.
-- R² Score: The model does not explain much variance in the target variable, meaning it has poor predictive power.
-- MAPE: The relative percentage error is low, suggesting that while the absolute errors are large, the overall relative deviation from actual values is somewhat controlled.
+Training loss converges well but remains slightly above zero.
+Validation loss is significantly higher and fluctuates more, indicating poor generalisation.
+High MSE and RMSE show the model has poor predictive accuracy.
+Low R² suggests that the model is barely explaining variance in stock prices.
+Conclusion: Overfitting is likely occurring, as validation loss does not improve much.
 ------------------------------------------------------------------------------------
 70% Train 15% Val 15% Test Split 
 
 Mean Squared Error (MSE): 20309.773438
 Root Mean Squared Error (RMSE): 142.512362
 Mean Absolute Error (MAE): 121.001495
-R² Score: 0.503499
+R² Score: 0.503499 (moderate fit)
 Mean Absolute Percentage Error (MAPE): 3.09%
 
 Feedback: 
-- Training Loss: Decreases over epochs and stabilizes at a low value.
-- Validation Loss: Shows high fluctuation with noticeable spikes, suggesting potential overfitting.
-
-- RMSE & MAE: relatively high, indicating the model has a considerable amount of error.
-- R² Score: A score of 0.50 suggests that the model explains only 50.35% of the variance, meaning it has weak predictive power.
-- MAPE: Suggests the model’s predictions are relatively close in proportion.
+Training loss remains low and stable.
+Validation loss is still fluctuating but generally lower than in Model 1.
+Lower MSE, RMSE, and MAE indicate an improvement in predictive power.
+Higher R² (0.50) means this model explains the variance better than Model 1.
+MAPE dropped slightly, showing a slight improvement in relative accuracy.
+Conclusion: Still some overfitting, but better performance than Model 1.
 ------------------------------------------------------------------------------------
 60% Train 20% Val 20% Test Split 
 
 Mean Squared Error (MSE): 8098.223633
 Root Mean Squared Error (RMSE): 89.990131
 Mean Absolute Error (MAE): 73.205750
-R² Score: 0.894926
+R² Score: 0.894926 (excellent? fit)
 Mean Absolute Percentage Error (MAPE): 1.79%
 
-Personal Feedback: 
+Feedback: 
+Training loss is stable and consistently low.
+Validation loss still fluctuates, but overall lower than the previous models.
+Significantly lower MSE, RMSE, and MAE show much better predictive performance.
+R² Score of 0.89 means the model explains the variance quite well.
+Lowest MAPE (1.79%), meaning the model has the best relative accuracy.
+Conclusion: This model achieves the best balance between training and validation performance.
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+Overall Research Summary for this Test:
+
+Model	              | MSE ↓	    | RMSE ↓	| MAE ↓	  | R² ↑    | MAPE ↓
+Model 1 (70/20/10)	| 24,207.37	| 155.59	| 126.43	| 0.1661	| 3.28%
+Model 2 (70/15/15)	| 20,309.77	| 142.51	| 121.00	| 0.5035	| 3.09%
+Model 3 (60/20/20)	| 8,098.22	| 89.99	  | 73.21	  | 0.8949	| 1.79%
+
+Model 3 has the lowest error (MSE, RMSE, MAE), the highest R², and the best generalisation.
+Model 1 is the worst-performing model, likely due to poor generalisation.
+Model 2 improves on Model 1 but is still not as strong as Model 3.
+
+Model 3 (60% train, 20% validation, 20% test) is the best choice for stock price prediction.
+It achieves the best balance between fit and generalisation, with low error and high explanatory power.
+The lower MAPE in Model 3 suggests it will perform better in real-world scenarios.
+------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------
 
 ####################################################################################
@@ -123,6 +145,13 @@ Root Mean Squared Error (RMSE): 175.120087
 Mean Absolute Error (MAE): 153.404785
 R² Score: 0.602097
 Mean Absolute Percentage Error (MAPE): 3.78%
+
+Feedback:
+Training loss is low and stable.
+Validation loss fluctuates more than the training loss, suggesting moderate overfitting.
+MSE, RMSE, and MAE are high, indicating that price & trend indicators alone are not enough.
+R² (0.60) is decent, but not the best.
+MAPE is higher than the model trained with 18 indicators from the previous test, meaning it has higher relative error.
 ------------------------------------------------------------------------------------
 Momentum Indicators (5 Indicators)
 
@@ -131,6 +160,14 @@ Root Mean Squared Error (RMSE): 1277.932314
 Mean Absolute Error (MAE): 1149.003540
 R² Score: -20.189501
 Mean Absolute Percentage Error (MAPE): 29.01%
+
+Feedback:
+Training and validation loss start high and stabilise at a low value.
+MSE, RMSE, and MAE are extremely high, showing that momentum indicators alone are ineffective.
+Negative R² (-20.19) is disastrous, meaning the model performs worse than a simple mean prediction.
+MAPE (29.01%) is unacceptably high, meaning huge percentage errors in predictions.
+Momentum indicators alone are not useful for stock prediction.
+This is the worst-performing model!
 ------------------------------------------------------------------------------------
 Volatility & Volume & Market Breadth Indicators (6 Indicators)
 
@@ -139,7 +176,42 @@ Root Mean Squared Error (RMSE): 185.403877
 Mean Absolute Error (MAE): 159.066010
 R² Score: 0.553992
 Mean Absolute Percentage Error (MAPE): 3.97%
+
+Feedback:
+Training loss is stable.
+Validation loss fluctuates more, suggesting moderate overfitting.
+MSE, RMSE, and MAE are slightly worse than Model 1 (price & trend indicators).
+R² (0.55) is lower than Model 1, meaning this model explains less variance.
+MAPE (3.97%) is the highest among all models except Model 2 (momentum indicators).
+Volatility, volume, and market breadth indicators alone do not perform well.
+This model is slightly worse than Model 1 but better than Model 2.
 ------------------------------------------------------------------------------------
+Taking into account the results of the previous model that uses all indicators (with the 60%20%20% TrainTestVal Split):
+
+Feedback:
+Training and validation loss are stable and closer together, indicating good generalisation.
+MSE, RMSE, and MAE are the lowest, meaning this model has the best predictive accuracy.
+R² (0.89) is significantly better than all other models, meaning it explains most of the variance.
+MAPE (1.79%) is the lowest, meaning the model has the best relative accuracy.
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+Overall Research Summary for this Test:
+
+Model	  | Features Used	                                  | MSE ↓	        | RMSE ↓	| MAE ↓	  | R² ↑	  | MAPE ↓
+Model 1	| 6 Price & Trend Indicators	                    | 30,667.04	    | 175.12	| 153.40	| 0.6021	| 3.78%
+Model 2	| 5 Momentum Indicators	                          | 1,633,111.00	| 1277.93	| 1149.00	| -20.19	| 29.01%
+Model 3	| 6 Volatility, Volume, Market Breadth Indicators	| 34,374.60	    | 185.40	| 159.07	| 0.5540	| 3.97%
+Model 4 | (Best Previous Model)	18 Combined Indicators	  | 8,098.22	    | 89.99	  | 73.21	  | 0.8949	| 1.79%
+
+The model that uses all 18 indicators is by far the best, with the lowest error and highest explanatory power.
+Momentum indicators alone (Model 2) performed the worst and are not useful in isolation.
+Price & trend indicators (Model 1) performed better than volatility, volume, and market breadth indicators (Model 3) but not as well as the combined 18 indicators model.
+The combined approach significantly improves stock prediction accuracy.
+Using a mix of all 18 indicators provides the most robust model.
+Momentum indicators alone should not be used as a primary input.
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+
 
 ####################################################################################
 Baseline Model - Hyperparameter Tuning <<
@@ -222,6 +294,28 @@ Mean Absolute Error (MAE): 58.062939
 R² Score: 0.931511
 Mean Absolute Percentage Error (MAPE): 1.44%
 
+Model	            | MSE ↓     | RMSE ↓	| MAE ↓	| R² ↑    | MAPE ↓
+Baseline Model 4	| 8,098.22	| 89.99	  | 73.21	| 0.8949	| 1.79%
+Optimised Model 5	| 5,278.60	| 72.65	  | 58.06	| 0.9315	| 1.44%
+
+Feedback:
+The results will be compared to the previous baseline model (combined 18 indicators model w 60%20%20% TrainTestVal Split).
+MSE improved significantly (~35% reduction) from 8,098.22 to 5,278.60, meaning the optimised model has lower overall error.
+RMSE dropped from 89.99 to 72.65, showing better generalisation.
+MAE improved from 73.21 to 58.06, meaning the absolute error in predictions is lower.
+R² increased from 0.8949 to 0.9315, meaning Model 5 explains more variance in stock prices.
+MAPE improved from 1.79% to 1.44%, meaning Model 5 has better relative accuracy.
+
+Baseline Model 4 (18 indicators, before optimisation)
+Training loss is low and stable.
+Validation loss fluctuates slightly but remains close to the training loss.
+Good generalisation, with no significant overfitting.
+
+Optimised Model 5 (Bayesian-optimised)
+Training and validation loss curves are even closer together, suggesting further improved generalisation.
+Validation loss is slightly more stable, meaning less variance in validation performance.
+Overall, less overfitting and better convergence.
+
 (K-Fold Cross Validation)
 
 Cross-Validation Results:
@@ -230,6 +324,38 @@ Average RMSE: 79.4217
 Average MAE: 59.0320
 Average R2 Score: 0.8590
 Average MAPE: 1.70%
-------------------------------------------------------------------------------------
 
-Research Summary:
+Feedback: 
+(For the evaluation by means of K-Fold Cross Validation on the baseline and optimised)
+
+Model	            | Average MSE ↓	| Average RMSE ↓	| Average MAE ↓	| Average R² ↑	| Average MAPE ↓
+Baseline Model 4	| 22,983.55	    | 133.70	        | 100.36	      | 0.6146	      | 2.89%
+Optimised Model 5	| 7,156.14	    | 79.42	          | 59.03	        | 0.8590	      | 1.70%
+
+Lower Error in Optimised Model
+
+MSE dropped by ~69% (from 22,983 to 7,156), meaning the optimised model makes much smaller errors on average.
+RMSE dropped from 133.70 to 79.42, meaning predictions are much closer to actual values.
+MAE improved from 100.36 to 59.03, meaning absolute errors are smaller.
+Better Predictive Power (R² Score)
+
+The optimised model (R² = 0.8590) explains 85.9% of the variance in stock prices.
+The baseline model (R² = 0.6146) explains only 61.5% of the variance.
+This suggests the optimised model fits the data much better.
+Improved Relative Accuracy (MAPE)
+
+The optimised model has a lower MAPE (1.70%) compared to the baseline (2.89%).
+This means the optimised model makes smaller percentage errors relative to the stock prices.
+More Stable Performance Across Folds
+
+In the baseline model, some folds have extremely high MSE and RMSE (e.g., Fold 2: MSE = 38,744, Fold 3: MSE = 53,781).
+The optimised model has lower variance across folds, meaning more consistent performance across different subsets of the data.
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+Overall Research Summary for this Test:
+
+Bayesian optimisation significantly improved the model's accuracy, generalisation, and stability.
+The optimised model (Model 5) is clearly superior, with lower error, better R², and more stable performance across folds.
+Stock price prediction is much more reliable with the optimised model, making it better suited for real-world applications.
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
