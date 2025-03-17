@@ -9,7 +9,8 @@ import seaborn as sns
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, mean_squared_error, mean_absolute_error, r2_score
+
 
 
 #Function for Fetching Data,
@@ -104,6 +105,20 @@ y_pred = log_reg.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print("Model Accuracy:", accuracy)
 print(classification_report(y_test, y_pred))
+
+
+#Predict Probabilities for Regression Metrics,
+y_pred_prob = log_reg.predict_proba(X_test)[:, 1]
+
+#Regression Metrics,
+r2 = r2_score(y_test, y_pred_prob)
+mse = mean_squared_error(y_test, y_pred_prob)
+mae = mean_absolute_error(y_test, y_pred_prob)
+
+print(f"R-Squared (R²): {r2:.4f}")
+print(f"Mean Squared Error (MSE): {mse:.4f}")
+print(f"Mean Absolute Error (MAE): {mae:.4f}")
+print()
 
 
 #Feature Importance of Contribution (Absolute Values of Coefficients),

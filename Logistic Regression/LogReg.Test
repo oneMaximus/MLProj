@@ -53,6 +53,11 @@ MODEL ACCURACY: 0.5203252032520326
 weighted avg       0.50      0.52      0.50       246
 
 
+R-Squared (R²): -0.0224
+Mean Squared Error (MSE): 0.2536
+Mean Absolute Error (MAE): 0.4989
+
+
 FEATURE IMPORTANCE RANKING:                                             FEATURE IMPORTANCE RANKING (WITH NORMALIZATION):
               Feature       Importance                                                Feature       Importance
                   OBV       0.603551                                                      OBV       1.000000
@@ -86,6 +91,12 @@ CORRELATION FILTERING:
 - Remove Correlation greater than 0.9, reducing Multicollinearity (Two or more Features that are highly Correlated with Each Other)
 - Prevent Redundant Features from affecting the Model
 
+--- Model Evaluation Metrics (Full Features) ---
+Accuracy: 0.5203
+R-Squared: -0.9342
+Mean Squared Error (MSE): 0.4797
+Mean Absolute Error (MAE): 0.4797
+
 FEATURES SELECTED TOP 5(FEATURES KEPT):
 - OBV
 - EMA
@@ -94,6 +105,10 @@ FEATURES SELECTED TOP 5(FEATURES KEPT):
 - Bollinger_Mavg
 
 ACCURACY WITH FEATURES SELECTED: 0.4878048780487805
+
+R-Squared: -1.0653
+Mean Squared Error (MSE): 0.5122
+Mean Absolute Error (MAE): 0.5122
 
 Price
 Target                   1.000000

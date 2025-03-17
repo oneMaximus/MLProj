@@ -11,6 +11,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import RFE
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+
 
 
 #Function for Fetching Data,
@@ -164,6 +166,32 @@ print(target_correlation)
 correlated_features = target_correlation[target_correlation > 0.9].index
 print()
 print("Highly correlated features:", correlated_features)
+
+
+#Evaluation Metrics for Full Feature Model
+r2 = r2_score(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+
+print()
+print("\n--- Model Evaluation Metrics (Full Features) ---")
+print(f"Accuracy: {accuracy:.4f}")
+print(f"R-Squared: {r2:.4f}")
+print(f"Mean Squared Error (MSE): {mse:.4f}")
+print(f"Mean Absolute Error (MAE): {mae:.4f}")
+
+
+#Evaluation Metrics for RFE Model
+r2_rfe = r2_score(y_test, y_pred_rfe)
+mse_rfe = mean_squared_error(y_test, y_pred_rfe)
+mae_rfe = mean_absolute_error(y_test, y_pred_rfe)
+
+print()
+print("\n--- Model Evaluation Metrics (RFE Selected Features) ---")
+print(f"Accuracy: {accuracy_rfe:.4f}")
+print(f"R-Squared: {r2_rfe:.4f}")
+print(f"Mean Squared Error (MSE): {mse_rfe:.4f}")
+print(f"Mean Absolute Error (MAE): {mae_rfe:.4f}")
 
 
 #Remove Correlated Feature from Dataset,
