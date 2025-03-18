@@ -118,21 +118,35 @@ Test R^2 (Test, All Indicators): 0.9889
 
 Predicted S&P 500 Close for 2025-03-06: 5749.93 (Close ytd 5842.62)
 Actual S&P 500 Close for 2025-03-06: 5738.53
+R^2                                 : 0.978
 
 Predicted S&P 500 Close for 2025-03-07: 5828.04
 Actual S&P 500 Close for 2025-03-06: 5,770.19
+R^2                                 : 0.45
 
 Predicted S&P 500 Close for 2025-03-10: 5714.63
 Actual S&P 500 Close for 2025-03-10: 5,614.55
+R^2                                 : -0.64
 
 Predicted S&P 500 Close for 2025-03-11: 5776.17
-Actual S&P 500 Close for 2025-03-11: 5,572.08
+Actual S&P 500 Close for 2025-03-11: 5572.08
+R^2                                 :-5.823
 
 Predicted S&P 500 Close for 2025-03-12: 5594.77
 Actual S&P 500 Close for 2025-03-12: 5,599.29
+R^2                                 :0.99
 
 Predicted S&P 500 Close for 2025-03-13: 5576.05
 Actual S&P 500 Close for 2025-03-13: 5,521.53
+R^2                                 :0.51
 
 Predicted S&P 500 Close for 2025-03-14: 5600.08
 Actual S&P 500 Close for 2025-03-13: 5,638.93
+R^2                                 :0.75
+
+Predicted S&P 500 Close for 2025-03-17: 5489.83 
+Actual S&P 500 Close for 2025-03-17: 5,675.11
+R^2                                 : -4.62
+
+Predicted S&P 500 Close for 2025-03-18: 5643.69
+Actual S&P 500 Close for 2025-03-18:

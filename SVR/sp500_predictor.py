@@ -10,11 +10,22 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import mean_squared_error, r2_score
 
-# Data fetching function
-def fetch_data(ticker="^GSPC", start="2018-01-01", end="2025-03-05"):
+# Updated Data fetching function
+def fetch_data(ticker="^GSPC", start="2018-01-01", end=None):
     """
-    Download historical data for the given ticker.
+    Download historical data for the given ticker up to the latest available date.
+    
+    Parameters:
+    - ticker (str): Stock ticker symbol (default: "^GSPC" for S&P 500).
+    - start (str): Start date in 'YYYY-MM-DD' format (default: "2018-01-01").
+    - end (str or None): End date in 'YYYY-MM-DD' format. If None, uses today's date (default: None).
+    
+    Returns:
+    - pd.DataFrame: Historical data for the ticker.
     """
+    if end is None:
+        end = pd.Timestamp.now().strftime('%Y-%m-%d')
+    
     data = yf.download(ticker, start=start, end=end)
     if isinstance(data.columns, pd.MultiIndex):
         data.columns = data.columns.get_level_values(0)
@@ -31,19 +42,18 @@ def compute_momentum(close, window):
 
 # Compute all indicators
 start_date = "2018-01-01"
-end_date = pd.Timestamp.now().strftime('%Y-%m-%d')  # Today, March 5, 2025
 
-print(f"Fetching data from {start_date} to {end_date}")
+print(f"Fetching data from {start_date} to today ({pd.Timestamp.now().strftime('%Y-%m-%d')})")
 
-# Fetch S&P 500 data
-sp500_data = fetch_data(ticker="^GSPC", start=start_date, end=end_date)
+# Fetch S&P 500 data (end date defaults to today)
+sp500_data = fetch_data(ticker="^GSPC", start=start_date)
 close = sp500_data['Close']
 high = sp500_data['High']
 low = sp500_data['Low']
 volume = sp500_data['Volume']
 
-# Fetch VIX data
-vix_data = fetch_data(ticker="^VIX", start=start_date, end=end_date)
+# Fetch VIX data (end date defaults to today)
+vix_data = fetch_data(ticker="^VIX", start=start_date)
 vix_close = vix_data['Close'].reindex(sp500_data.index, method='ffill')
 
 # Create DataFrame for indicators
@@ -98,7 +108,6 @@ print("Infinites in X:", np.isinf(X).sum().sum())
 print("NaNs in y:", y.isna().sum())
 print("Infinites in y:", np.isinf(y).sum())
 
-
 # Time-based split for 60% train, 20% validation, 20% test
 total_size = len(data)
 train_size = int(total_size * 0.6)  # 60% for training
@@ -149,13 +158,11 @@ print(f"Test MSE (Test, All Indicators): {test_mse:.4f}")
 print(f"Test R^2 (Test, All Indicators): {test_r2:.4f}")
 
 # Predict today's closing price using the last row
-last_date = sp500_data.index[-1]  # Last date in data (e.g., March 4, 2025)
+last_date = sp500_data.index[-1]  # Last date in data (e.g., March 14, 2025)
 print(f"Last date in data: {last_date}")
 
-# Get today's date 
-today = pd.Timestamp.now().strftime('%Y-%m-%d')
-
 # Use the last row of data to predict today's closing price
+today = pd.Timestamp.now().strftime('%Y-%m-%d')
 last_row = data.iloc[-1:]
 X_last = last_row[features]
 
@@ -163,7 +170,7 @@ X_last = last_row[features]
 print("NaNs in last_row before scaling:", X_last.isna().sum().sum())
 X_last_scaled = scaler_X.transform(X_last)
 
-# Predict today's closing price (March 5, 2025)
+# Predict today's closing price
 y_pred_scaled = best_svr.predict(X_last_scaled)
 y_pred = scaler_Y.inverse_transform(y_pred_scaled.reshape(-1, 1)).ravel()[0]
 
