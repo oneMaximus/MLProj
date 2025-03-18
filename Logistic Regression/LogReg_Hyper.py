@@ -11,6 +11,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import RFE
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from sklearn.model_selection import learning_curve
 
 
 #Function for Fetching Data,
@@ -204,11 +206,63 @@ accuracy = accuracy_score(y_test, y_pred)
 print("Model Accuracy:", accuracy)
 print(classification_report(y_test, y_pred))
 
+
+#Evaluation Metrics using Probability Predictions
+y_prob = log_reg.predict_proba(X_test)[:, 1]  # Probability for class 1
+
+
+#R-Squared, MSE, and MAE
+r2 = r2_score(y_test, y_prob)
+mse = mean_squared_error(y_test, y_prob)
+mae = mean_absolute_error(y_test, y_prob)
+
+print()
+print(f"R-Squared: {r2:.4f}")
+print(f"Mean Squared Error (MSE): {mse:.4f}")
+print(f"Mean Absolute Error (MAE): {mae:.4f}")
+print()
+
+
 #Feature Importance
 feature_importance = abs(log_reg.coef_[0])
 importance_df = pd.DataFrame({'Feature': full_features, 'Importance': feature_importance})
 importance_df = importance_df.sort_values(by='Importance', ascending=False)
 print(importance_df)
+
+
+#Function to plot learning curve with MSE comparison
+def plot_learning_curve_mse(model, X, y, cv=5, train_sizes=np.linspace(0.1, 1.0, 10)):
+    plt.figure(figsize=(10, 6))
+
+    #Generate learning curve data with MSE as the metric
+    train_sizes, train_scores, test_scores = learning_curve(
+        model, X, y, cv=cv, scoring='neg_mean_squared_error', train_sizes=train_sizes, n_jobs=-1
+    )
+
+    #Calculate mean and standard deviation for smooth curves
+    train_mean = np.mean(train_scores, axis=1)
+    train_std = np.std(train_scores, axis=1)
+    test_mean = np.mean(test_scores, axis=1)
+    test_std = np.std(test_scores, axis=1)
+
+    #Plot training curve (MSE, lower is better)
+    plt.plot(train_sizes, -train_mean, 'o-', color='blue', label='Training MSE')
+    plt.fill_between(train_sizes, -train_mean - train_std, -train_mean + train_std, color='blue', alpha=0.2)
+
+    #Plot validation curve (MSE, lower is better)
+    plt.plot(train_sizes, -test_mean, 'o-', color='green', label='Validation MSE')
+    plt.fill_between(train_sizes, -test_mean - test_std, -test_mean + test_std, color='green', alpha=0.2)
+
+    #Curve details
+    plt.title("Learning Curve - Mean Squared Error")
+    plt.xlabel("Training Set Size")
+    plt.ylabel("Mean Squared Error (MSE)")
+    plt.legend(loc='best')
+    plt.grid(True)
+    plt.show()
+
+#Plot learning curve for the optimized model with MSE
+plot_learning_curve_mse(log_reg, X_scaled, y)
 
 
 #Plotting Feature Data,
