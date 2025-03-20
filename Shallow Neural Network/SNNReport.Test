@@ -204,11 +204,10 @@ Model 3	| 6 Volatility, Volume, Market Breadth Indicators	| 34,374.60	    | 185.
 Model 4 | (Best Previous Model)	18 Combined Indicators	  | 8,098.22	    | 89.99	  | 73.21	  | 0.8949	| 1.79%
 
 The model that uses all 18 indicators is by far the best, with the lowest error and highest explanatory power.
-Momentum indicators alone (Model 2) performed the worst and are not useful in isolation.
+Momentum indicators alone (Model 2) performed the worst and are not useful in isolation, meaning it shouldn't be used as a primary input.
 Price & trend indicators (Model 1) performed better than volatility, volume, and market breadth indicators (Model 3) but not as well as the combined 18 indicators model.
 The combined approach significantly improves stock prediction accuracy.
 Using a mix of all 18 indicators provides the most robust model.
-Momentum indicators alone should not be used as a primary input.
 ------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------
 
@@ -231,9 +230,8 @@ Description:
     activation_fn = ["relu", "tanh", "leaky_relu"]
 
 3. Models will be using all technical indicators (combined indicators) as feature inputs
-4. Model will be using a 60% 
-5. K-fold Cross Validation will be performed on both Baseline Model & Optimised Model to compare the results
-& performance 
+4. Model will be using 60% Training, 20% Validation, 20% Testing 
+5. K-fold Cross Validation will be performed on both Baseline Model & Optimised Model to compare the results & performance
 ####################################################################################
 
 Results:
@@ -364,3 +362,9 @@ The optimised model (Model 5) is clearly superior, with lower error, better R²,
 Stock price prediction is much more reliable with the optimised model, making it better suited for real-world applications.
 ------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------
+
+Final Words: 
+
+To conclude, based on the results of the completed tests, (shallow) neural networks demonstrate a key starting point for the team as an introductory level to 
+what deep learning is capable of, with significant potential for tasks as such. By implementing the appropriate deep learning algorithms and leveraging the 
+right capacities, its performance could be elevated to achieve even greater outcomes, and the team is excited for more exposure soon!

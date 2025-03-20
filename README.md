@@ -7,20 +7,21 @@ This repository contains a **Financial Market Prediction** project using **Machi
 The models explored include:
 - **Shallow Neural Network** 🧠
 - **Linear Regression** 📉
-- **Logistic Regression**
+- **Logistic Regression**📊
 - **Random Forest** 🌲
 - **AdaBoost (XGBoost Extension)** 🚀
 - **Support Vector Regression (SVR)** 🏎️
 ## 📊 Dataset Used
-**Data Source:** S&P 500 stock price 📊
+**Data Source:** S&P 500 Stock Market Index 📊
 
 ### Features Used
-| Category | Indicators |
-|----------|------------------------------------------------|
-| **Price & Trend Indicators** | SMA, EMA, WMA, MACD, Parabolic SAR |
-| **Momentum Indicators** | RSI, Stochastic Oscillator, ROC, MOM, Williams %R |
-| **Volatility Indicators** | Bollinger Mavg, ATR |
-| **Volume Indicators** | OBV, MFI, VWAP |
+| Category                      | Indicators                                        |
+|-------------------------------|---------------------------------------------------|
+| **Price & Trend Indicators**  | SMA, EMA, WMA, MACD, Parabolic SAR                |
+| **Momentum Indicators**       | RSI, Stochastic Oscillator, ROC, MOM, Williams %R |
+| **Volatility Indicators**     | Bollinger Mavg,                                   |
+| **Volume Indicators**         | OBV, MFI, VWAP                                    |
+| **Market Breadth Indicators** | Approx AD, VIX                                    |
 
 ## 📂 Repository Structure
 ```
@@ -54,7 +55,8 @@ MLProj/
 │   ├── sp500_predictor.py               # SP500 Market Prediction using SVR
 │
 │── Shallow Neural Network/
-│   ├── Neural Network Implementation
+│   ├── SNN.ipynb                      # SNN Model Implementation
+│   ├── SNNReport.test                 # SNN Model Results & Evaluation
 │
 │── .gitignore
 │── README.md
@@ -64,11 +66,11 @@ MLProj/
 
 ## 🤝 Contributions
 ### Team Members & Assigned Models
-| Name     | Model Used            |
-|----------|----------------------|
-| Max      | SVM                  |
-| Shawn    | Logistic Regression  |
-| Daniel   | Linear Regression    |
-| Gregory  | Neural Network       |
-| Roy      | Random Forest        |
-| Zul      | AdaBoost             |
+| Name     | Model Used                     |
+|----------|--------------------------------|
+| Max      | Support Vector Regression      |
+| Shawn    | Logistic Regression            |
+| Daniel   | Linear Regression              |
+| Gregory  | Neural Network (Shallow)       |
+| Roy      | Random Forest                  |
+| Zul      | AdaBoost                       |
