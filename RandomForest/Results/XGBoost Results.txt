@@ -26,6 +26,14 @@ Base Model (All Indicator) : {'colsample_bytree': 0.8, 'gamma': 0, 'learning_rat
 Model MSE (Best XGBoost): 149500.1060
 Model R² (Best XGBoost): -0.9398
 
+Best model 
+Best Model (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']) : {'colsample_bytree': 0.7, 'learning_rate': 0.1, 'max_depth': 7, 'min_child_weight': 3, 'n_estimators': 800, 'reg_lambda': 1.0, 'subsample': 0.8}
+Model MSE (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): 127211.6699
+Model R² (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): -0.6506
+Model RMSE (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): 356.6157
+Model MAE (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): 269.7834
+Model MAPE (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): 6.72%
+
 
 ==============================================================================================================================================================================================================================
 Singular Indicator
@@ -68,6 +76,9 @@ Model R² (['Lag_1', 'EMA', 'WMA', 'SMA']): -0.6877
 Base Model (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']) : {'colsample_bytree': 0.7, 'learning_rate': 0.1, 'max_depth': 7, 'min_child_weight': 3, 'n_estimators': 800, 'reg_lambda': 1.0, 'subsample': 0.8}
 Model MSE (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): 127211.6699
 Model R² (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): -0.6506
+Model RMSE (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): 356.6157
+Model MAE (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): 269.7834
+Model MAPE (['Lag_1', 'EMA', 'WMA', 'SMA', 'Accum_Dist']): 6.72%
 
 Base Model (['Lag_1', 'EMA', 'WMA', 'Bollinger_Mavg', 'VWAP']) : {'colsample_bytree': 0.7, 'learning_rate': 0.15, 'max_depth': 7, 'min_child_weight': 1, 'n_estimators': 1000, 'reg_lambda': 2.0, 'subsample': 0.7}
 Model MSE (['Lag_1', 'EMA', 'WMA', 'Bollinger_Mavg', 'VWAP']): 127404.0149
