@@ -3,7 +3,7 @@ Shallow Neural Network Evaluation Results
 BASELINE Evaluation
 
 ####################################################################################
-Variation in TrainTestVal Split <<
+Variation in TrainValTest Split <<
 ####################################################################################
 
 ####################################################################################
@@ -186,7 +186,7 @@ MAPE (3.97%) is the highest among all models except Model 2 (momentum indicators
 Volatility, volume, and market breadth indicators alone do not perform well.
 This model is slightly worse than Model 1 but better than Model 2.
 ------------------------------------------------------------------------------------
-Taking into account the results of the previous model that uses all indicators (with the 60%20%20% TrainTestVal Split):
+Taking into account the results of the previous model that uses all indicators (with the 60%20%20% TrainValTest Split):
 
 Feedback:
 Training and validation loss are stable and closer together, indicating good generalisation.
@@ -274,17 +274,22 @@ StockPredictionNN(
   (layers): Sequential(
     (0): Linear(in_features=18, out_features=128, bias=True)
     (1): ReLU()
-    (2): Linear(in_features=128, out_features=32, bias=True)
-    (3): ReLU()
-    (4): Linear(in_features=32, out_features=1, bias=True)
+    (2): Dropout(p=dropout_rate, inplace=False)
+    (3): Linear(in_features=128, out_features=32, bias=True)
+    (4): ReLU()
+    (5): Linear(in_features=32, out_features=1, bias=True)
   )
 )
 
 Best Hyperparameters:
+input_size = 18 - "len(features)"  
+hidden_size1 = 128
+hidden_size2 = 32  
+output_size = 1
+activation = relu
 batch_size = 32
 dropout_rate = 0.2783082412106063
 learning_rate = 0.002081896423415752
-activation = relu
 num_epochs = 100
 
 Evaluation of Model with Optimised Hyperparameters:
@@ -299,7 +304,7 @@ Baseline Model 4	| 8,098.22	| 89.99	  | 73.21	| 0.8949	| 1.79%
 Optimised Model 5	| 5,278.60	| 72.65	  | 58.06	| 0.9315	| 1.44%
 
 Feedback:
-The results will be compared to the previous baseline model (combined 18 indicators model w 60%20%20% TrainTestVal Split).
+The results will be compared to the previous baseline model (combined 18 indicators model w 60%20%20% TrainValTest Split).
 MSE improved significantly (~35% reduction) from 8,098.22 to 5,278.60, meaning the optimised model has lower overall error.
 RMSE dropped from 89.99 to 72.65, showing better generalisation.
 MAE improved from 73.21 to 58.06, meaning the absolute error in predictions is lower.
